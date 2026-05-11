@@ -67,7 +67,7 @@ export default function ProgrammingPage() {
     });
 
     const sunAnalysis = analyzeSunExposure(program);
-    const budget = estimateBudget(program.surfaces.total, project.project_type);
+    const budget = estimateBudget(program.surfaces?.total ?? 0, project.project_type);
 
     return { program, footprint, sunAnalysis, budget };
   }, [project]);
@@ -189,9 +189,9 @@ export default function ProgrammingPage() {
               {/* Adjacences */}
               <div>
                 <h4 className="text-sm font-medium text-slate-700 mb-2">Adjacences</h4>
-                {program.adjacencies.length > 0 ? (
+                {(program.adjacencies ?? []).length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {program.adjacencies.map((adj, i) => (
+                    {(program.adjacencies ?? []).map((adj, i) => (
                       <Badge
                         key={i}
                         variant={adj.type === 'direct' ? 'default' : 'secondary'}
@@ -211,18 +211,18 @@ export default function ProgrammingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                   <p className="text-xs text-blue-600 font-medium uppercase tracking-wider mb-1">CAO</p>
-                  <p className="text-2xl font-bold text-blue-800">{program.surfaces.CAO} m²</p>
+                  <p className="text-2xl font-bold text-blue-800">{program.surfaces?.CAO ?? 0} m²</p>
                   <p className="text-xs text-blue-600 mt-1">Close et Ouverte</p>
                 </div>
                 <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
                   <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-1">CHA</p>
-                  <p className="text-2xl font-bold text-emerald-800">{program.surfaces.CHA} m²</p>
+                  <p className="text-2xl font-bold text-emerald-800">{program.surfaces?.CHA ?? 0} m²</p>
                   <p className="text-xs text-emerald-600 mt-1">Surface chargeable</p>
                 </div>
                 <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
                   <p className="text-xs text-amber-600 font-medium uppercase tracking-wider mb-1">Circulation</p>
-                  <p className="text-2xl font-bold text-amber-800">{program.surfaces.circulation} m²</p>
-                  <p className="text-xs text-amber-600 mt-1">{program.ratios.circulation_ratio}% du total</p>
+                  <p className="text-2xl font-bold text-amber-800">{program.surfaces?.circulation ?? 0} m²</p>
+                  <p className="text-xs text-amber-600 mt-1">{program.ratios?.circulation_ratio ?? 0}% du total</p>
                 </div>
               </div>
 
@@ -230,8 +230,8 @@ export default function ProgrammingPage() {
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                 <TrendingUp size={16} className="text-slate-500" />
                 <span className="text-sm text-slate-600">Ratio CHA/CAO :</span>
-                <span className="text-sm font-bold text-slate-800">{program.ratios.CHA_CAO}%</span>
-                <Progress value={Math.min(program.ratios.CHA_CAO, 100)} className="w-24 h-2" />
+                <span className="text-sm font-bold text-slate-800">{program.ratios?.CHA_CAO ?? 0}%</span>
+                <Progress value={Math.min(program.ratios?.CHA_CAO ?? 0, 100)} className="w-24 h-2" />
               </div>
             </CardContent>
           </Card>
@@ -316,7 +316,7 @@ export default function ProgrammingPage() {
                 </div>
                 <div className="p-3 bg-slate-50 rounded-lg text-center">
                   <p className="text-xs text-slate-500">Hauteur max</p>
-                  <p className="text-lg font-bold text-slate-800">{footprint?.heightMax ?? '—'} m</p>
+                  <p className="text-lg font-bold text-slate-800">{footprint?.maxHeight ?? '—'} m</p>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-lg text-center">
                   <p className="text-xs text-slate-500">Surface emprise</p>
@@ -325,7 +325,7 @@ export default function ProgrammingPage() {
                 <div className="p-3 bg-slate-50 rounded-lg text-center">
                   <p className="text-xs text-slate-500">Reculs (F/L/R)</p>
                   <p className="text-lg font-bold text-slate-800">
-                    {footprint ? `${footprint.reculs.front}/${footprint.reculs.side}/${footprint.reculs.rear}` : '—'}
+                    {footprint?.reculs ? `${footprint.reculs.front}/${footprint.reculs.side}/${footprint.reculs.rear}` : '—'}
                   </p>
                 </div>
               </div>
@@ -344,15 +344,15 @@ export default function ProgrammingPage() {
 
                     {/* Emprise (vert) */}
                     <rect
-                      x={20 + footprint.reculs.side * 8}
-                      y={20 + footprint.reculs.front * 4}
-                      width={(footprint.width - footprint.reculs.side * 2) * 8}
-                      height={(footprint.depth - footprint.reculs.front - footprint.reculs.rear) * 4}
+                      x={20 + (footprint.reculs?.side ?? 0) * 8}
+                      y={20 + (footprint.reculs?.front ?? 0) * 4}
+                      width={(footprint.width - (footprint.reculs?.side ?? 0) * 2) * 8}
+                      height={(footprint.depth - (footprint.reculs?.front ?? 0) - (footprint.reculs?.rear ?? 0)) * 4}
                       fill="#bbf7d0" stroke="#22c55e" strokeWidth={1.5} rx={2}
                     />
                     <text
-                      x={20 + footprint.reculs.side * 8 + ((footprint.width - footprint.reculs.side * 2) * 8) / 2}
-                      y={20 + footprint.reculs.front * 4 + ((footprint.depth - footprint.reculs.front - footprint.reculs.rear) * 4) / 2}
+                      x={20 + (footprint.reculs?.side ?? 0) * 8 + ((footprint.width - (footprint.reculs?.side ?? 0) * 2) * 8) / 2}
+                      y={20 + (footprint.reculs?.front ?? 0) * 4 + ((footprint.depth - (footprint.reculs?.front ?? 0) - (footprint.reculs?.rear ?? 0)) * 4) / 2}
                       textAnchor="middle" fontSize={10} fill="#15803d" fontWeight={500}
                     >
                       Emprise

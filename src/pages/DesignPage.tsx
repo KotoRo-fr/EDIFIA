@@ -74,7 +74,7 @@ export default function DesignPage() {
       front: 3, side: 1.5, rear: 3,
     });
 
-    const variants = generateVariants(program.rooms, footprint);
+    const variants = generateVariants(program.rooms, footprint) as Variant[];
 
     return { program, footprint, variants };
   }, [project]);
