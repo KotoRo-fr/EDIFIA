@@ -5,7 +5,7 @@
  * and aesthetics dimensions.
  */
 
-import { Room, Footprint, DesignVariant, FloorPlan, PlacedRoom } from './types';
+import type { Room, Footprint, DesignVariant, FloorPlan, PlacedRoom } from './types';
 import {
   solveLinear,
   solveLShaped,

@@ -4,7 +4,7 @@
  * All coordinates are in meters. Origin (0,0) is bottom-left of the footprint.
  */
 
-import {
+import type {
   Room,
   Footprint,
   PlacedRoom,
@@ -19,7 +19,7 @@ import {
 const GAP = 0.1; // 10 cm gap between rooms (partitions)
 const WALL_THICKNESS = 0.15; // 15 cm structural wall thickness
 const DOOR_WIDTH = 0.9; // 90 cm standard door width
-const MIN_CIRCULATION = 0.9; // 90 cm minimum circulation width
+// MIN_CIRCULATION = 0.9; // 90 cm minimum circulation width (reserved)
 
 // ─── Public Strategy API ──────────────────────────────────────────────────────
 

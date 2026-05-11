@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Solver Test Suite — 15+ tests covering all solver modules.
  *
@@ -5,15 +6,12 @@
  * To run manually: `npx ts-node solver.test.ts` or import into any test runner.
  */
 
-import {
+import type {
   Room,
   Footprint,
-  PlacedRoom,
-  FloorPlan,
-  Program,
-  DesignVariant,
 } from '../types';
-import { solveRoomProgram, RoomInput } from '../roomSolver';
+import { solveRoomProgram } from '../roomSolver';
+import type { RoomInput } from '../roomSolver';
 import { generateFootprint } from '../footprintGenerator';
 import {
   solveLinear,
@@ -245,7 +243,8 @@ const tests: TestCase[] = [
         { type: 'salon', surface: 30, priority: 10 },
         { type: 'chambre', surface: 12, priority: 8 },
       ];
-      const totalSurface = 42;
+      const _totalSurface = 42;
+      void _totalSurface;
       const programWood = solveRoomProgram(inputs, 'extension_under_40', 'moderne');
       const programTrad = solveRoomProgram(inputs, 'extension_under_40', 'classique');
 

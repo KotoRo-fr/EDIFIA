@@ -1,5 +1,4 @@
 import { Outlet, useLocation } from 'react-router';
-import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './Navbar';
 import MobileNav from './MobileNav';
 import Sidebar from './Sidebar';

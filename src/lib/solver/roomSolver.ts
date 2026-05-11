@@ -4,11 +4,10 @@
  * with adjacency analysis, solar recommendations, and budget estimation.
  */
 
-import {
+import type {
   Room,
   Program,
   AdjacencyEdge,
-  SunRecommendation,
   BudgetEstimate,
 } from './types';
 

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Filter, Play, Loader2 } from 'lucide-react';
+import { ArrowLeft, Play, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ComplianceGauge from '@/components/ComplianceGauge';
 import { mockEvaluationResult } from '@/mocks/complianceData';
 import { api } from '@/lib/api-client';
-import { CardHover } from '@/components/animations';
 import { toast } from 'sonner';
 
 // Types simples
@@ -63,7 +62,6 @@ export default function CompliancePage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [data, setData] = useState<EvaluationData>(mockData);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Charger les données depuis l'API au montage
   useEffect(() => {
@@ -88,11 +86,9 @@ export default function CompliancePage() {
           })),
         };
         setData(formatted);
-        setError(null);
       } catch {
         if (!cancelled) {
           setData(mockData);
-          setError(null);
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -124,7 +120,6 @@ export default function CompliancePage() {
         })),
       };
       setData(formatted);
-      setError(null);
       toast.success('Evaluation terminee', {
         description: `Taux de conformite : ${result.summary.compliance_rate}%`,
       });

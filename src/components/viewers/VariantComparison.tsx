@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, AlertTriangle, Sun, Maximize, Palette, Wallet, BarChart3 } from 'lucide-react';
+import { CheckCircle, XCircle, Sun, Maximize, Palette, Wallet } from 'lucide-react';
 import type { Variant } from '@/types/solver';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -67,10 +67,10 @@ export default function VariantComparison({ variants, selectedId, onSelect }: Va
 
             {/* Scores détaillés */}
             <div className="space-y-2 mb-3 flex-1">
-              <ScoreBar icon={<Maximize size={12} />} label="Surface" value={variant.scores.surface} color="bg-blue-500" />
-              <ScoreBar icon={<Sun size={12} />} label="Ensoleil." value={variant.scores.ensoleillement} color="bg-amber-500" />
-              <ScoreBar icon={<Wallet size={12} />} label="Coût" value={variant.scores.cout} color="bg-emerald-500" />
-              <ScoreBar icon={<Palette size={12} />} label="Esthétique" value={variant.scores.esthetique} color="bg-violet-500" />
+              <ScoreBar icon={<Maximize size={12} />} label="Surface" value={variant.scores.surface} />
+              <ScoreBar icon={<Sun size={12} />} label="Ensoleil." value={variant.scores.ensoleillement} />
+              <ScoreBar icon={<Wallet size={12} />} label="Coût" value={variant.scores.cout} />
+              <ScoreBar icon={<Palette size={12} />} label="Esthétique" value={variant.scores.esthetique} />
             </div>
 
             {/* Conformité */}
@@ -118,12 +118,10 @@ function ScoreBar({
   icon,
   label,
   value,
-  color,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
-  color: string;
 }) {
   const colorClass = value >= 80 ? 'text-emerald-600' : value >= 60 ? 'text-amber-600' : 'text-red-500';
 

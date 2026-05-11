@@ -6,7 +6,6 @@ import {
   Settings,
   ShieldCheck,
   FileText,
-  MapPin,
 } from 'lucide-react';
 
 const navItems = [

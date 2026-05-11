@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Calculator, ShieldCheck, Map, Package, Printer, Download } from 'lucide-react';
+import { ArrowLeft, FileText, Calculator, ShieldCheck, Map, Package, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { mockEvaluationResult } from '@/mocks/complianceData';
 import CerfaViewer from '@/components/deliverables/CerfaViewer';
 import NoticeCalculViewer from '@/components/deliverables/NoticeCalculViewer';
 import RapportConformiteViewer from '@/components/deliverables/RapportConformiteViewer';
 import PlansViewer from '@/components/deliverables/PlansViewer';
 import { mockProjects } from '@/mocks/data';
-import { CardHover } from '@/components/animations';
+
 import { toast } from 'sonner';
 
 const DOCUMENTS = [
@@ -78,8 +78,8 @@ export default function DeliverablesPage() {
       <Card>
         <CardContent className="pt-5">
           {activeTab === 'cerfa' && <CerfaViewer project={project} profile={profile} />}
-          {activeTab === 'notice' && <NoticeCalculViewer project={project} />}
-          {activeTab === 'rapport' && <RapportConformiteViewer project={project} />}
+          {activeTab === 'notice' && <NoticeCalculViewer project={project} complianceResult={mockEvaluationResult} />}
+          {activeTab === 'rapport' && <RapportConformiteViewer project={project} complianceResult={mockEvaluationResult} />}
           {activeTab === 'plans' && <PlansViewer project={project} />}
           {activeTab === 'pack' && (
             <div className="text-center py-12">

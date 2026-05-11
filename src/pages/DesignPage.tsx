@@ -5,7 +5,6 @@ import {
   Sparkles,
   CheckCircle,
   RotateCcw,
-  ChevronRight,
   Box,
   Layers,
   Sun,
@@ -60,9 +59,9 @@ export default function DesignPage() {
     [projectId]
   );
 
-  const { program, footprint, variants } = useMemo(() => {
+  const variants = useMemo(() => {
     if (!project?.brief) {
-      return { program: null, footprint: null, variants: [] as Variant[] };
+      return [] as Variant[];
     }
 
     const style = (project.brief.preferences?.style as string) || 'moderne';
@@ -74,9 +73,7 @@ export default function DesignPage() {
       front: 3, side: 1.5, rear: 3,
     });
 
-    const variants = generateVariants(program.rooms, footprint) as Variant[];
-
-    return { program, footprint, variants };
+    return generateVariants(program.rooms, footprint) as unknown as Variant[];
   }, [project]);
 
   const selectedVariant = useMemo(() =>
