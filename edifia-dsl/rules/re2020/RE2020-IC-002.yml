@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-IC-002"
+  name: "Ic enveloppe - batiment neuf"
+  category: "re2020"
+  description: "Verifie que l'impact carbone de l'enveloppe du batiment est inferieur a 0.8 kgCO2e/m²"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "ic_enveloppe"
+        source: "variante.surface_habitable"
+      - name: "ic_max_enveloppe"
+        source: "batiment.materiaux"
+    operation: "lte"
+    expression: "ic_enveloppe <= ic_max_enveloppe"
+  error_message:
+    fr: "L'impact carbone de l'enveloppe ({ic_enveloppe}) depasse la limite ({ic_max_enveloppe})"
+  source:
+    document: "RE2020"
+    article: "Article 6bis - Ic enveloppe"
+    reference: "Arrete du 30 mars 2022"

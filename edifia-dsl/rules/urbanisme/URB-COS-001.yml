@@ -1,0 +1,25 @@
+rule:
+  code: "URB-COS-001"
+  name: "Coefficient d'Occupation du Sol"
+  category: "urbanisme"
+  description: "Verifie que la surface au sol ne depasse pas le COS autorise"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40", "mob_under_150"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_au_sol"
+        source: "variante.surface_au_sol"
+      - name: "cos_max"
+        source: "plu.cos_max"
+      - name: "surface_parcelle"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_au_sol <= cos_max * surface_parcelle"
+  error_message:
+    fr: "La surface au sol ({surface_au_sol}m²) depasse le COS autorise ({cos_max} * {surface_parcelle}m²)"
+  source:
+    document: "PLU"
+    article: "Reglement graphique"

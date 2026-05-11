@@ -1,0 +1,23 @@
+rule:
+  code: "INC-MATER-001"
+  name: "Reaction au feu des parements"
+  category: "incendie"
+  description: "Verifie que les materiaux de parement interieur ont une classe de reaction au feu minimale M3"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "membership"
+    input:
+      - name: "classe_reaction"
+        source: "batiment.materiaux"
+      - name: "classes_autorisees"
+        source: "plu.zone"
+    operation: "in"
+    expression: "classe_reaction in classes_autorisees"
+  error_message:
+    fr: "La classe de reaction au feu ({classe_reaction}) n'est pas autorisee pour les parements interieurs"
+  source:
+    document: "Code de la construction"
+    article: "R.122-6 - Reaction au feu"
+    reference: "NF EN 13501-1"

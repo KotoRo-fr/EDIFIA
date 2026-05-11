@@ -1,0 +1,25 @@
+rule:
+  code: "RE2020-PV-001"
+  name: "Potentiel photovoltaique"
+  category: "re2020"
+  description: "Verifie que le batiment dispose d'une surface minimale de panneaux photovoltaiques selon son emprise"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "emprise"
+        source: "variante.emprise"
+      - name: "surface_min_pv"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "emprise <= surface_min_pv"
+  error_message:
+    fr: "L'emprise au sol ({emprise}m²) necessite une installation photovoltaique conforme a la RE2020"
+  source:
+    document: "RE2020"
+    article: "Article 11 - Production d'energie renouvelable"
+    reference: "Arrete du 30 mars 2022"
+  metadata:
+    ratio_surface_toiture: 0.30

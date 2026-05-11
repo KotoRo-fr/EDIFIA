@@ -1,0 +1,24 @@
+rule:
+  code: "RE2020-TIC-002"
+  name: "TIC modere - zone H2"
+  category: "re2020"
+  description: "Verifie que la TIC respecte la valeur moderee pour les batiments en zone H2"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+    communes: ["74011"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "tic_h2"
+        source: "variante.surface_habitable"
+      - name: "tic_max_h2"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "tic_h2 <= tic_max_h2"
+  error_message:
+    fr: "La TIC en zone H2 ({tic_h2}°C) depasse la valeur limite ({tic_max_h2}°C)"
+  source:
+    document: "RE2020"
+    article: "Article 5bis - TIC zone H2"
+    reference: "Arrete du 30 mars 2022"

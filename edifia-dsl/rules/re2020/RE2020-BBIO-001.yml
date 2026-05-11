@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-BBIO-001"
+  name: "Bbio max - batiments neufs < 500m²"
+  category: "re2020"
+  description: "Verifie que l'indicateur Bbio est inferieur a 1.3 pour les batiments neufs de surface < 500m²"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "bbio"
+        source: "variante.surface_habitable"
+      - name: "bbio_max"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "bbio <= bbio_max"
+  error_message:
+    fr: "L'indicateur Bbio ({bbio}) depasse la valeur maximale autorisee ({bbio_max}) pour les batiments < 500m²"
+  source:
+    document: "RE2020"
+    article: "Article 4 - Exigence de bio-climatique"
+    reference: "Arrete du 30 mars 2022"

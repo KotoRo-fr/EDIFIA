@@ -1,0 +1,143 @@
+# ============================================================
+# EDIFIA — Docker Compose (Local Development)
+# ============================================================
+
+version: "3.9"
+
+services:
+  # ----------------------------------------------------------
+  # PostgreSQL + PostGIS
+  # ----------------------------------------------------------
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: edifia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-edifia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edifia_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-edifia}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-edifia} -d ${POSTGRES_DB:-edifia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - edifia-network
+
+  # ----------------------------------------------------------
+  # Redis Cache
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: edifia-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - edifia-network
+
+  # ----------------------------------------------------------
+  # Backend API (FastAPI)
+  # ----------------------------------------------------------
+  backend:
+    build:
+      context: ../edifia-backend
+      dockerfile: ../edifia-infra/docker/Dockerfile.backend
+    container_name: edifia-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://edifia:${POSTGRES_PASSWORD:-edifia_secret}@postgres:5432/edifia
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-super-secret-jwt-key-change-in-production}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
+    networks:
+      - edifia-network
+
+  # ----------------------------------------------------------
+  # Frontend (Nginx)
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: ..
+      dockerfile: edifia-infra/docker/Dockerfile.frontend
+    container_name: edifia-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - edifia-network
+
+  # ----------------------------------------------------------
+  # Prometheus (Monitoring)
+  # ----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.55
+    container_name: edifia-prometheus
+    restart: unless-stopped
+    volumes:
+      - ../edifia-infra/monitoring/prometheus-config.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - edifia-network
+
+  # ----------------------------------------------------------
+  # Grafana (Visualization)
+  # ----------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.0
+    container_name: edifia-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - edifia-network
+
+# ----------------------------------------------------------
+# Volumes
+# ----------------------------------------------------------
+volumes:
+  pgdata:
+  prometheus-data:
+  grafana-data:
+
+# ----------------------------------------------------------
+# Networks
+# ----------------------------------------------------------
+networks:
+  edifia-network:
+    driver: bridge

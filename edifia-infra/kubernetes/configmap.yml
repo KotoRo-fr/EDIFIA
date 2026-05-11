@@ -1,0 +1,20 @@
+# ============================================================
+# EDIFIA — ConfigMap (variables non sensibles)
+# ============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edifia-config
+  namespace: edifia
+  labels:
+    app: edifia
+    tier: config
+data:
+  APP_NAME: "EDIFIA"
+  APP_VERSION: "1.0.0"
+  ENV: "production"
+  LOG_LEVEL: "info"
+  DATABASE_URL_TEMPLATE: "postgresql+asyncpg://edifia:${DB_PASSWORD}@postgres:5432/edifia"
+  REDIS_URL: "redis://redis:6379/0"
+  CORS_ORIGINS: '"*"'
+  BACKEND_URL: "http://edifia-backend:8000"

@@ -1,0 +1,25 @@
+rule:
+  code: "INC-ASC-001"
+  name: "Securite ascenseur incendie"
+  category: "incendie"
+  description: "Verifie que les ascenseurs des ERP disposent des equipements de securite incendie (arret etage, detection)"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_niveaux"
+        source: "batiment.niveaux"
+      - name: "seuil_asc_secu"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "nb_niveaux >= seuil_asc_secu"
+  error_message:
+    fr: "L'ascenseur du batiment de {nb_niveaux} niveaux doit etre equipe de dispositifs de securite incendie"
+  source:
+    document: "Code de la construction"
+    article: "R.122-2 - Ascenseurs"
+    reference: "Norme NF EN 81-73"
+  metadata:
+    dispositifs: ["arret etage prioritaire", "portes coupe-feu", "detection cabine"]

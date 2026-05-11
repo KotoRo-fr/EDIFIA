@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-ACC-001"
+  name: "Accessibilite - plain-pied ou ascenseur"
+  category: "pmr"
+  description: "Verifie que les batiments de plus de 150m² de surface accessible disposent d'un acces de plain-pied ou d'un ascenseur"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_accessible"
+        source: "variante.surface_habitable"
+      - name: "seuil_surface"
+        source: "plu.zone"
+    operation: "gte"
+    expression: "surface_accessible >= seuil_surface"
+  error_message:
+    fr: "La surface accessible ({surface_accessible}m²) depasse 150m² sans acces de plain-pied ni ascenseur"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-1 - Accessibilite aux personnes handicapees"
+    reference: "Livre 1er, Titre Ier"

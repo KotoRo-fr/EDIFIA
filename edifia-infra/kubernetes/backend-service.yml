@@ -1,0 +1,23 @@
+# ============================================================
+# EDIFIA — Backend Service
+# ============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: edifia-backend
+  namespace: edifia
+  labels:
+    app: edifia
+    tier: backend
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: edifia
+    tier: backend
+    component: api

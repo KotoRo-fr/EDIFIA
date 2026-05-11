@@ -1,0 +1,23 @@
+rule:
+  code: "URB-REC-001"
+  name: "Recul minimum par rapport a la voie publique"
+  category: "urbanisme"
+  description: "Verifie que le batiment respecte le recul minimum par rapport a la voie publique"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "recul_front"
+        source: "parcelle.setbacks.front"
+      - name: "recul_min_front"
+        source: "plu.setbacks.front"
+    operation: "gte"
+    expression: "recul_front >= recul_min_front"
+  error_message:
+    fr: "Le recul par rapport a la voie publique ({recul_front}m) est insuffisant. Minimum requis: {recul_min_front}m"
+  source:
+    document: "PLU"
+    article: "Article 5 - Alignements et reculs"

@@ -1,0 +1,24 @@
+rule:
+  code: "URB-VUE-001"
+  name: "Respect des droits de vue"
+  category: "urbanisme"
+  description: "Verifie que la hauteur du batiment respecte les droits de vue des parcelles voisines (hauteur max PLU)"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU", "A"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "hauteur_max"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= hauteur_max"
+  error_message:
+    fr: "La hauteur du batiment ({hauteur}m) depasse la limite PLU ({hauteur_max}m) et porte atteinte aux droits de vue"
+  source:
+    document: "PLU"
+    article: "Hauteurs et gabarits"
+    reference: "Article L111-4 du Code de l'urbanisme"

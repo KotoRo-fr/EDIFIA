@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-SANI-001"
+  name: "Sanitaire accessible PMR"
+  category: "pmr"
+  description: "Verifie que les batiments disposent d'au moins un sanitaire accessible aux personnes a mobilite reduite"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_sanitaires_pmr"
+        source: "batiment.niveaux"
+      - name: "nb_sanitaires_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "nb_sanitaires_pmr >= nb_sanitaires_min"
+  error_message:
+    fr: "Nombre de sanitaires PMR insuffisant: {nb_sanitaires_pmr} < {nb_sanitaires_min}"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-4 - Sanitaires"
+    reference: "Norme NF P99-611"

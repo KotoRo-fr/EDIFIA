@@ -1,0 +1,23 @@
+rule:
+  code: "URB-EMP-002"
+  name: "Distance de mitoyennete"
+  category: "urbanisme"
+  description: "Verifie que la distance avec la limite separative respecte le minimum reglementaire"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+    zones: ["U"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "distance_mitoyen"
+        source: "parcelle.setbacks.side"
+      - name: "distance_min"
+        source: "plu.setbacks.side"
+    operation: "gte"
+    expression: "distance_mitoyen >= distance_min"
+  error_message:
+    fr: "La distance de mitoyennete ({distance_mitoyen}m) est insuffisante. Minimum: {distance_min}m"
+  source:
+    document: "PLU"
+    article: "Article 6 - Mitoyennete"

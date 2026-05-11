@@ -1,0 +1,164 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "edifia-business",
+    "title": "EDIFIA — Business Metrics",
+    "tags": ["edifia", "business", "sprint1"],
+    "timezone": "Europe/Paris",
+    "schemaVersion": 38,
+    "refresh": "30s",
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Projets actifs",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "center"
+        },
+        "targets": [
+          {
+            "expr": "count(edifia_projet_actif == 1)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 2,
+        "title": "Evaluations ce mois",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "center"
+        },
+        "targets": [
+          {
+            "expr": "count(increase(edifia_evaluation_created_total[30d]) > 0)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 3,
+        "title": "Taux de conformite moyen",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        },
+        "targets": [
+          {
+            "expr": "avg(edifia_conformite_score / edifia_conformite_max * 100)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 4,
+        "title": "Utilisateurs actifs",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "center"
+        },
+        "targets": [
+          {
+            "expr": "count(edifia_utilisateur_actif == 1)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 5,
+        "title": "Activite mensuelle",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 4
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "bars",
+              "fillOpacity": 50,
+              "pointSize": 0
+            }
+          }
+        },
+        "targets": [
+          {
+            "expr": "increase(edifia_evaluation_created_total[1d])",
+            "legendFormat": "Evaluations",
+            "refId": "A"
+          },
+          {
+            "expr": "increase(edifia_projet_created_total[1d])",
+            "legendFormat": "Projets",
+            "refId": "B"
+          }
+        ],
+        "datasource": "Prometheus"
+      }
+    ]
+  },
+  "overwrite": true
+}

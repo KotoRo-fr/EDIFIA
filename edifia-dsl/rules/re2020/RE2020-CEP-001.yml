@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-CEP-001"
+  name: "CEP max - Consommation Energie Primaire"
+  category: "re2020"
+  description: "Verifie que la Consommation d'Energie Primaire (CEP) est inferieure a 180 kWh/m².an"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "cep"
+        source: "variante.surface_habitable"
+      - name: "cep_max"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "cep <= cep_max"
+  error_message:
+    fr: "La consommation d'energie primaire ({cep} kWh/m².an) depasse la limite autorisee ({cep_max} kWh/m².an)"
+  source:
+    document: "RE2020"
+    article: "Article 3 - Consommation d'energie primaire"
+    reference: "Arrete du 30 mars 2022"

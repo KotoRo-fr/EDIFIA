@@ -1,0 +1,24 @@
+rule:
+  code: "RE2020-TIC-001"
+  name: "TIC max - zone H1, surface < 500m²"
+  category: "re2020"
+  description: "Verifie que le Temperature Integree de Confort (TIC) est inferieur a 60°C pour les batiments < 500m² en zone H1"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+    communes: ["74010"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "tic"
+        source: "variante.surface_habitable"
+      - name: "tic_max"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "tic <= tic_max"
+  error_message:
+    fr: "La Temperature Integree de Confort ({tic}°C) depasse la limite autorisee ({tic_max}°C) en zone H1"
+  source:
+    document: "RE2020"
+    article: "Article 5 - Confort d'ete"
+    reference: "Arrete du 30 mars 2022"

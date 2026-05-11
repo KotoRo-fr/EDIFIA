@@ -1,0 +1,224 @@
+# ============================================================
+# EDIFIA — Pipeline CI/CD GitLab
+# Sprint 1 : Build > Test > Security Scan > Deploy
+# ============================================================
+
+variables:
+  DOCKER_REGISTRY: "$CI_REGISTRY"
+  BACKEND_IMAGE: "$CI_REGISTRY_IMAGE/backend"
+  FRONTEND_IMAGE: "$CI_REGISTRY_IMAGE/frontend"
+  KUBECONFIG_STAGING: "/etc/deploy/config-staging"
+  KUBECONFIG_PROD: "/etc/deploy/config-production"
+  TRIVY_SEVERITY: "HIGH,CRITICAL"
+  TRIVY_EXIT_CODE: "0"
+  TRIVY_FORMAT: "table"
+
+default:
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+
+# ============================================================
+# Stages
+# ============================================================
+stages:
+  - build
+  - test
+  - security-scan
+  - deploy-staging
+  - deploy-prod
+
+# ============================================================
+# Templates
+# ============================================================
+.docker_login: &docker_login
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+
+.kube_setup_staging: &kube_setup_staging
+  - mkdir -p /etc/deploy
+  - echo "$KUBE_CONFIG_STAGING" | base64 -d > "$KUBECONFIG_STAGING"
+  - export KUBECONFIG="$KUBECONFIG_STAGING"
+
+.kube_setup_prod: &kube_setup_prod
+  - mkdir -p /etc/deploy
+  - echo "$KUBE_CONFIG_PROD" | base64 -d > "$KUBECONFIG_PROD"
+  - export KUBECONFIG="$KUBECONFIG_PROD"
+
+# ============================================================
+# Stage: BUILD
+# ============================================================
+build:backend:
+  stage: build
+  script:
+    - *docker_login
+    - |
+      docker build \
+        --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        --build-arg VCS_REF="$CI_COMMIT_SHA" \
+        --build-arg VERSION="$CI_COMMIT_REF_NAME" \
+        -t "$BACKEND_IMAGE:$CI_COMMIT_SHA" \
+        -t "$BACKEND_IMAGE:latest" \
+        -f edifia-infra/docker/Dockerfile.backend \
+        edifia-backend/
+    - docker push "$BACKEND_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$BACKEND_IMAGE:latest"
+  only:
+    - main
+    - develop
+    - merge_requests
+
+build:frontend:
+  stage: build
+  script:
+    - *docker_login
+    - |
+      docker build \
+        --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        --build-arg VCS_REF="$CI_COMMIT_SHA" \
+        --build-arg VERSION="$CI_COMMIT_REF_NAME" \
+        -t "$FRONTEND_IMAGE:$CI_COMMIT_SHA" \
+        -t "$FRONTEND_IMAGE:latest" \
+        -f edifia-infra/docker/Dockerfile.frontend \
+        .
+    - docker push "$FRONTEND_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$FRONTEND_IMAGE:latest"
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ============================================================
+# Stage: TEST
+# ============================================================
+test:backend:
+  stage: test
+  image: python:3.12-slim
+  services:
+    - postgres:16
+    - redis:7-alpine
+  variables:
+    POSTGRES_USER: edifia
+    POSTGRES_PASSWORD: test
+    POSTGRES_DB: edifia_test
+    DATABASE_URL: "postgresql+asyncpg://edifia:test@postgres/edifia_test"
+    REDIS_URL: "redis://redis:6379/1"
+    SECRET_KEY: "test-secret-key"
+  script:
+    - cd edifia-backend
+    - pip install --user -r requirements.txt
+    - pip install --user pytest pytest-asyncio pytest-cov httpx
+    - python -m pytest tests/ --cov=app --cov-report=xml --cov-report=term-missing -v
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: edifia-backend/coverage.xml
+    paths:
+      - edifia-backend/coverage.xml
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+test:frontend:
+  stage: test
+  image: node:20-alpine
+  script:
+    - cd edifia-frontend
+    - npm ci
+    - npx vitest run --coverage
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: edifia-frontend/coverage/cobertura-coverage.xml
+    paths:
+      - edifia-frontend/coverage/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ============================================================
+# Stage: SECURITY SCAN
+# ============================================================
+security-scan:backend:
+  stage: security-scan
+  image: aquasec/trivy:latest
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+  script:
+    - trivy image --severity "$TRIVY_SEVERITY" --exit-code "$TRIVY_EXIT_CODE" --format "$TRIVY_FORMAT" "$BACKEND_IMAGE:$CI_COMMIT_SHA"
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+security-scan:frontend:
+  stage: security-scan
+  image: aquasec/trivy:latest
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+  script:
+    - trivy image --severity "$TRIVY_SEVERITY" --exit-code "$TRIVY_EXIT_CODE" --format "$TRIVY_FORMAT" "$FRONTEND_IMAGE:$CI_COMMIT_SHA"
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+security-scan:fs:
+  stage: security-scan
+  image: aquasec/trivy:latest
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+  script:
+    - trivy fs --severity "$TRIVY_SEVERITY" --exit-code "$TRIVY_EXIT_CODE" --format "$TRIVY_FORMAT" .
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ============================================================
+# Stage: DEPLOY STAGING
+# ============================================================
+deploy:staging:
+  stage: deploy-staging
+  image: bitnami/kubectl:latest
+  environment:
+    name: staging
+    url: https://staging.edifia.local
+  script:
+    - *kube_setup_staging
+    - kubectl apply -k edifia-infra/kubernetes/overlays/staging/
+    - kubectl set image deployment/edifia-backend backend="$BACKEND_IMAGE:$CI_COMMIT_SHA" -n edifia-staging
+    - kubectl set image deployment/edifia-frontend frontend="$FRONTEND_IMAGE:$CI_COMMIT_SHA" -n edifia-staging
+    - kubectl rollout status deployment/edifia-backend -n edifia-staging --timeout=300s
+    - kubectl rollout status deployment/edifia-frontend -n edifia-staging --timeout=300s
+  only:
+    - develop
+
+# ============================================================
+# Stage: DEPLOY PRODUCTION
+# ============================================================
+deploy:prod:
+  stage: deploy-prod
+  image: bitnami/kubectl:latest
+  environment:
+    name: production
+    url: https://edifia.local
+  when: manual
+  script:
+    - *kube_setup_prod
+    - kubectl apply -k edifia-infra/kubernetes/overlays/production/
+    - kubectl set image deployment/edifia-backend backend="$BACKEND_IMAGE:$CI_COMMIT_SHA" -n edifia
+    - kubectl set image deployment/edifia-frontend frontend="$FRONTEND_IMAGE:$CI_COMMIT_SHA" -n edifia
+    - kubectl rollout status deployment/edifia-backend -n edifia --timeout=300s
+    - kubectl rollout status deployment/edifia-frontend -n edifia --timeout=300s
+  only:
+    - main

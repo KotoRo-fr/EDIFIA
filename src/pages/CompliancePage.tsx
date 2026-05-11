@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Play } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Printer, Filter, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ComplianceGauge from '@/components/ComplianceGauge';
 import { mockEvaluationResult } from '@/mocks/complianceData';
-
+import { CardHover } from '@/components/animations';
 import { toast } from 'sonner';
 
 // Types simples

@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-CIRC-001"
+  name: "Largeur minimale des circulations"
+  category: "pmr"
+  description: "Verifie que les circulations interieures ont une largeur minimale de 90 cm"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "largeur_circulation"
+        source: "batiment.materiaux"
+      - name: "largeur_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "largeur_circulation >= largeur_min"
+  error_message:
+    fr: "La largeur de la circulation ({largeur_circulation}cm) est insuffisante. Minimum: {largeur_min}cm"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-3 - Circulations interieures"
+    reference: "Norme NF P99-611"

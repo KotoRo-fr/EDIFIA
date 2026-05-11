@@ -1,0 +1,68 @@
+# ============================================================
+# EDIFIA — Frontend Deployment (Nginx)
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edifia-frontend
+  namespace: edifia
+  labels:
+    app: edifia
+    tier: frontend
+    component: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edifia
+      tier: frontend
+      component: web
+  template:
+    metadata:
+      labels:
+        app: edifia
+        tier: frontend
+        component: web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 101
+      containers:
+        - name: frontend
+          image: edifia-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              protocol: TCP
+              name: http
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "150m"
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true

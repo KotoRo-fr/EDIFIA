@@ -1,7 +1,8 @@
-import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, MapPin, Shield } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, MapPin, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 // DONNEES STATIQUES
 const SITE_DATA = {

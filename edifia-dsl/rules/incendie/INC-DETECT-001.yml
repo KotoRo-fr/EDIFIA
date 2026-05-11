@@ -1,0 +1,23 @@
+rule:
+  code: "INC-DETECT-001"
+  name: "Detection incendie ERP"
+  category: "incendie"
+  description: "Verifie que les etablissements recevant du public (ERP) disposent d'un systeme de detection incendie"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "type_batiment"
+        source: "batiment.type"
+      - name: "surface_erp"
+        source: "variante.surface_habitable"
+    operation: "eq"
+    expression: "type_batiment == 'erp'"
+  error_message:
+    fr: "L'etablissement recevant du public doit disposer d'un systeme de detection incendie"
+  source:
+    document: "Code de la construction"
+    article: "R.122-7 - Detection automatique d'incendie"
+    reference: "Arrete du 30 juin 1983"

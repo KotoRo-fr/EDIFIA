@@ -1,0 +1,25 @@
+rule:
+  code: "INC-GAZ-001"
+  name: "Detection gaz"
+  category: "incendie"
+  description: "Verifie que les locaux utilisant du gaz disposent d'un systeme de detection de fuite de gaz"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "niveaux"
+        source: "batiment.niveaux"
+      - name: "seuil_detection"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "niveaux >= seuil_detection"
+  error_message:
+    fr: "Le batiment de {niveaux} niveaux necessite une detection gaz conforme"
+  source:
+    document: "Code de la construction"
+    article: "R.122-5 - Installations gaz"
+    reference: "Arrete du 2 août 1977 modifie"
+  metadata:
+    type_detecteur: "DTG 22 ou équivalent"

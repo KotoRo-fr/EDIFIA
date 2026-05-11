@@ -1,0 +1,25 @@
+rule:
+  code: "INC-ERP-001"
+  name: "Classement ERP si plus de 300m²"
+  category: "incendie"
+  description: "Verifie que les etablissements recevant du public de plus de 300m² sont correctement classes et securises"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_erp"
+        source: "variante.surface_habitable"
+      - name: "seuil_erp"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_erp <= seuil_erp"
+  error_message:
+    fr: "L'etablissement de {surface_erp}m² depasse le seuil ERP de 300m² et necessite un classement"
+  source:
+    document: "Code de la construction"
+    article: "R.123-1 - Classement des ERP"
+    reference: "Arrete du 25 juin 1980 modifie"
+  metadata:
+    seuil_classement_m2: 300

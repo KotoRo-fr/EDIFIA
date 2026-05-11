@@ -1,0 +1,27 @@
+rule:
+  code: "URB-ESP-001"
+  name: "Espaces verts minimum"
+  category: "urbanisme"
+  description: "Verifie que la surface d'espaces verts est d'au moins 10% de la surface de parcelle"
+  severity: "minor"
+  applicability:
+    project_types: ["new_build"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "emprise"
+        source: "variante.emprise"
+      - name: "surface_parcelle"
+        source: "parcelle.surface"
+      - name: "taux_min"
+        source: "plu.cos_max"
+    operation: "lte"
+    expression: "emprise <= surface_parcelle * (1 - taux_min * 0.2)"
+  error_message:
+    fr: "L'emprise ({emprise}m²) ne laisse pas assez d'espace vert sur la parcelle ({surface_parcelle}m²)"
+  source:
+    document: "PLU"
+    article: "Espaces verts"
+  metadata:
+    ratio_min: 0.10

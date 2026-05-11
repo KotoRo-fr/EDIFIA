@@ -1,0 +1,45 @@
+# ============================================================
+# EDIFIA — Backend Dockerfile
+# Multi-stage build pour Python FastAPI
+# ============================================================
+
+# Stage 1: Build dependencies
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# Installer les dépendances système nécessaires à la compilation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Copier uniquement les packages installés depuis le stage builder
+COPY --from=builder /root/.local /root/.local
+COPY . .
+
+# Variables d'environnement
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Créer un utilisateur non-root pour la sécurité
+RUN useradd -m -u 1000 edifia && chown -R edifia:edifia /app
+USER edifia
+
+EXPOSE 8000
+
+# Healthcheck pour vérifier que l'API répond
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

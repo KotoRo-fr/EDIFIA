@@ -1,0 +1,23 @@
+rule:
+  code: "INC-ECLA-001"
+  name: "Eclairage de securite des issues"
+  category: "incendie"
+  description: "Verifie que les issues disposent d'un eclairage de securite conforme"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "eclairement_issue"
+        source: "batiment.materiaux"
+      - name: "eclairement_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "eclairement_issue >= eclairement_min"
+  error_message:
+    fr: "L'eclairage de securite ({eclairement_issue} lux) est insuffisant. Minimum: {eclairement_min} lux"
+  source:
+    document: "Code de la construction"
+    article: "R.122-13 - Eclairage de securite"
+    reference: "NF EN 1838"

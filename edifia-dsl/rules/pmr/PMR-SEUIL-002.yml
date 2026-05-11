@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-SEUIL-002"
+  name: "Largeur minimale d'ouverture des portes"
+  category: "pmr"
+  description: "Verifie que les portes ont une largeur minimale de 90 cm a l'ouverture"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "largeur_porte"
+        source: "batiment.materiaux"
+      - name: "largeur_porte_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "largeur_porte >= largeur_porte_min"
+  error_message:
+    fr: "La largeur de la porte ({largeur_porte}cm) est insuffisante. Minimum: {largeur_porte_min}cm"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-9 - Largeur des portes"
+    reference: "Norme NF P99-611"

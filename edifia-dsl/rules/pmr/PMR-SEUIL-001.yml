@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-SEUIL-001"
+  name: "Seuil de porte maximal"
+  category: "pmr"
+  description: "Verifie que le seuil des portes ne depasse pas 2 cm de hauteur"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur_seuil"
+        source: "batiment.materiaux"
+      - name: "seuil_max"
+        source: "variante.surface_habitable"
+    operation: "lte"
+    expression: "hauteur_seuil <= seuil_max"
+  error_message:
+    fr: "Le seuil de porte ({hauteur_seuil}cm) depasse la hauteur maximale autorisee ({seuil_max}cm)"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-2 - Seuils"
+    reference: "Norme NF P99-611"

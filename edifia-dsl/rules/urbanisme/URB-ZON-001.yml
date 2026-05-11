@@ -1,0 +1,22 @@
+rule:
+  code: "URB-ZON-001"
+  name: "Zonage constructible"
+  category: "urbanisme"
+  description: "Verifie que la parcelle est situee dans une zone constructible"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40", "mob_under_150"]
+  formula:
+    type: "membership"
+    input:
+      - name: "zone_parcelle"
+        source: "parcelle.zone"
+      - name: "zones_constructibles"
+        source: "plu.zone"
+    operation: "in"
+    expression: "zone_parcelle in zones_constructibles"
+  error_message:
+    fr: "La parcelle est en zone {zone_parcelle} qui n'est pas constructible"
+  source:
+    document: "PLU"
+    article: "Article 2 - Zones d'urbanisme"

@@ -1,0 +1,50 @@
+# ============================================================
+# EDIFIA — Prometheus Configuration
+# ============================================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: edifia
+    environment: production
+
+scrape_configs:
+  # Backend API (FastAPI) — métriques métier
+  - job_name: 'edifia-backend'
+    static_configs:
+      - targets: ['edifia-backend:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 5s
+
+  # Frontend (Nginx) — métriques de base
+  - job_name: 'edifia-frontend'
+    static_configs:
+      - targets: ['edifia-frontend:80']
+    scrape_interval: 30s
+    scrape_timeout: 5s
+
+  # PostgreSQL Exporter — métriques base de données
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+
+  # Redis Exporter — métriques cache
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []

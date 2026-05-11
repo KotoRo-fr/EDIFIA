@@ -1,0 +1,93 @@
+# ============================================================
+# EDIFIA — Backend Deployment (FastAPI)
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edifia-backend
+  namespace: edifia
+  labels:
+    app: edifia
+    tier: backend
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edifia
+      tier: backend
+      component: api
+  template:
+    metadata:
+      labels:
+        app: edifia
+        tier: backend
+        component: api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: backend
+          image: edifia-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+              name: http
+          envFrom:
+            - configMapRef:
+                name: edifia-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: edifia-secret
+                  key: DB_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://edifia:$(DB_PASSWORD)@postgres:5432/edifia"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: edifia-secret
+                  key: JWT_SECRET_KEY
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12

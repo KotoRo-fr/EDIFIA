@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-PORTE-001"
+  name: "Manoeuvre des portes accessible"
+  category: "pmr"
+  description: "Verifie que les portes sont manoeuvrables avec une force inferieure a la limite reglementaire"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "force_manoeuvre"
+        source: "batiment.materiaux"
+      - name: "force_max"
+        source: "variante.surface_habitable"
+    operation: "lte"
+    expression: "force_manoeuvre <= force_max"
+  error_message:
+    fr: "La force de manoeuvre de la porte ({force_manoeuvre}N) depasse la limite ({force_max}N)"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-10 - Manoeuvre des portes"
+    reference: "Norme NF P99-611"

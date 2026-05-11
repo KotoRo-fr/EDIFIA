@@ -1,0 +1,23 @@
+rule:
+  code: "INC-REAC-001"
+  name: "Parements interieurs M3 minimum"
+  category: "incendie"
+  description: "Verifie que les parements interieurs ont une classe de reaction au feu d'au moins M3"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "membership"
+    input:
+      - name: "classe_parement"
+        source: "batiment.materiaux"
+      - name: "classes_min"
+        source: "plu.zone"
+    operation: "in"
+    expression: "classe_parement in classes_min"
+  error_message:
+    fr: "Les parements interieurs ({classe_parement}) doivent avoir une classe de reaction au feu d'au moins M3"
+  source:
+    document: "Code de la construction"
+    article: "R.122-9 - Classement des parements"
+    reference: "NF EN 13501-1"

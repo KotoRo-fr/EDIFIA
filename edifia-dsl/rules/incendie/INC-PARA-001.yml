@@ -1,0 +1,26 @@
+rule:
+  code: "INC-PARA-001"
+  name: "Paratonnerre si hauteur superieure a 28m"
+  category: "incendie"
+  description: "Verifie que les batiments de plus de 28 metres de hauteur sont equipes d'un paratonnerre"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "hauteur_min_paratonnerre"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= hauteur_min_paratonnerre"
+  error_message:
+    fr: "Le batiment de {hauteur}m depasse la hauteur limite et necessite un paratonnerre conforme a la NF C 17-102"
+  source:
+    document: "Code de la construction"
+    article: "R.122-6 - Protection foudre"
+    reference: "NF C 17-102"
+  metadata:
+    hauteur_seuil_m: 28
+    niveau_protection: "Classe III minimum"

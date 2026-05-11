@@ -1,0 +1,23 @@
+rule:
+  code: "INC-EXTIN-001"
+  name: "Extincteur accessible par etage"
+  category: "incendie"
+  description: "Verifie que chaque etage dispose d'au moins un extincteur accessible"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_extincteurs"
+        source: "batiment.niveaux"
+      - name: "nb_extincteurs_min"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "nb_extincteurs >= nb_extincteurs_min"
+  error_message:
+    fr: "Nombre d'extincteurs insuffisant: {nb_extincteurs} < {nb_extincteurs_min}"
+  source:
+    document: "Code de la construction"
+    article: "R.122-8 - Moyens de lutte contre l'incendie"
+    reference: "Arrete du 30 juin 1983"

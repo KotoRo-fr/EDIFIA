@@ -1,0 +1,26 @@
+rule:
+  code: "RE2020-BIO-001"
+  name: "Materiaux biosources minimum"
+  category: "re2020"
+  description: "Verifie que la part de materiaux biosources dans la construction respecte le minimum reglementaire"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "taux_biosource"
+        source: "batiment.materiaux"
+      - name: "taux_min_biosource"
+        source: "variante.surface_au_sol"
+    operation: "gte"
+    expression: "taux_biosource >= taux_min_biosource"
+  error_message:
+    fr: "Le taux de materiaux biosources ({taux_biosource}%) est inferieur au minimum reglementaire ({taux_min_biosource}%)"
+  source:
+    document: "RE2020"
+    article: "Article 8 - Materiaux de construction biosources"
+    reference: "Arrete du 30 mars 2022"
+  metadata:
+    taux_min_maisons: 50
+    taux_min_appartements: 60

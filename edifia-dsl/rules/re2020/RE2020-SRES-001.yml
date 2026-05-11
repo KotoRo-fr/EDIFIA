@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-SRES-001"
+  name: "SRES minimum - Surface de production solaire"
+  category: "re2020"
+  description: "Verifie que la surface de production d'energie solaire renouvelable represente au moins 10% de la surface habitable"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "sres"
+        source: "variante.surface_habitable"
+      - name: "sres_min"
+        source: "batiment.materiaux"
+    operation: "gte"
+    expression: "sres >= sres_min"
+  error_message:
+    fr: "La surface de production solaire ({sres}m²) est insuffisante. Minimum requis: {sres_min}m² (10% de SHAB)"
+  source:
+    document: "RE2020"
+    article: "Article 7 - Energies renouvelables"
+    reference: "Arrete du 30 mars 2022"

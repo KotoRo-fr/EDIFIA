@@ -1,0 +1,23 @@
+rule:
+  code: "URB-HT-001"
+  name: "Hauteur maximale du batiment"
+  category: "urbanisme"
+  description: "Verifie que la hauteur du batiment respecte la hauteur maximale autorisee par le PLU"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40", "mob_under_150"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "height_max"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= height_max"
+  error_message:
+    fr: "La hauteur du batiment ({hauteur}m) depasse la hauteur maximale autorisee ({height_max}m)"
+  source:
+    document: "PLU"
+    article: "Article 4 - Hauteur des constructions"

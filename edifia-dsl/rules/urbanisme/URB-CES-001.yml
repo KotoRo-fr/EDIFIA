@@ -1,0 +1,25 @@
+rule:
+  code: "URB-CES-001"
+  name: "Coefficient d'emprise au sol (CES)"
+  category: "urbanisme"
+  description: "Verifie que le coefficient d'emprise au sol respecte la limite reglementaire"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "emprise"
+        source: "variante.emprise"
+      - name: "ces_max"
+        source: "plu.cos_max"
+      - name: "surface_parcelle"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "emprise <= ces_max * surface_parcelle"
+  error_message:
+    fr: "L'emprise au sol ({emprise}m²) depasse le CES autorise ({ces_max} * {surface_parcelle}m²)"
+  source:
+    document: "Code de l'urbanisme"
+    article: "R.111-22 - Coefficient d'emprise au sol"

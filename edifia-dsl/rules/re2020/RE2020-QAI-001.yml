@@ -1,0 +1,27 @@
+rule:
+  code: "RE2020-QAI-001"
+  name: "Qualite air interieur"
+  category: "re2020"
+  description: "Verifie que les emissions de polluants des materiaux respectent les limites de la RE2020"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "emission_formaldehyde"
+        source: "batiment.materiaux"
+      - name: "limite_formaldehyde"
+        source: "variante.surface_habitable"
+    operation: "lte"
+    expression: "emission_formaldehyde <= limite_formaldehyde"
+  error_message:
+    fr: "Les emissions de formaldehyde ({emission_formaldehyde} µg/m³) depassent la limite RE2020 ({limite_formaldehyde} µg/m³)"
+  source:
+    document: "RE2020"
+    article: "Article 9 - Qualite de l'air interieur"
+    reference: "Arrete du 30 mars 2022"
+  metadata:
+    limite_formaldehyde_classe_a: 10
+    limite_formaldehyde_classe_b: 60
+    limite_formaldehyde_classe_c: 120

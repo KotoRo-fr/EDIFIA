@@ -1,0 +1,25 @@
+rule:
+  code: "RE2020-RECUP-001"
+  name: "Recuperation eaux de pluie"
+  category: "re2020"
+  description: "Verifie que les batiments neufs disposent d'un systeme de recuperation des eaux de pluie"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "seuil_recuperation"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= seuil_recuperation"
+  error_message:
+    fr: "La surface habitable ({surface_habitable}m²) necessite un systeme de recuperation des eaux de pluie"
+  source:
+    document: "RE2020"
+    article: "Article 10 - Gestion des eaux pluviales"
+    reference: "Arrete du 30 mars 2022"
+  metadata:
+    note: "Obligatoire pour tout batiment neuf > 100m²"

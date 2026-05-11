@@ -1,0 +1,23 @@
+rule:
+  code: "INC-COMPA-001"
+  name: "Compartimentage - batiments de 2 niveaux"
+  category: "incendie"
+  description: "Verifie que les batiments de 2 niveaux ou plus ont des compartiments coupe-feu"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "niveaux_batiment"
+        source: "batiment.niveaux"
+      - name: "seuil_compartimentage"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "niveaux_batiment >= seuil_compartimentage"
+  error_message:
+    fr: "Le batiment de {niveaux_batiment} niveaux necessite un compartimentage coupe-feu"
+  source:
+    document: "Code de la construction"
+    article: "R.122-12 - Compartimentage"
+    reference: "Arrete du 30 juin 1983"

@@ -1,0 +1,23 @@
+rule:
+  code: "INC-DESE-002"
+  name: "Dimensions des exutoires de desenfumage"
+  category: "incendie"
+  description: "Verifie que les exutoires de desenfumage ont une surface minimale de 1% de la surface du local"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_exutoire"
+        source: "variante.surface_habitable"
+      - name: "surface_min_exutoire"
+        source: "batiment.niveaux"
+    operation: "gte"
+    expression: "surface_exutoire >= surface_min_exutoire"
+  error_message:
+    fr: "La surface des exutoires ({surface_exutoire}m²) est insuffisante. Minimum: {surface_min_exutoire}m²"
+  source:
+    document: "Code de la construction"
+    article: "R.122-10 - Exutoires de desenfumage"
+    reference: "Arrete du 30 juin 1983"

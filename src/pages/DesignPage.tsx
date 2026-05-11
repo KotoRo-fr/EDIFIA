@@ -5,6 +5,7 @@ import {
   Sparkles,
   CheckCircle,
   RotateCcw,
+  ChevronRight,
   Box,
   Layers,
   Sun,
@@ -59,58 +60,23 @@ export default function DesignPage() {
     [projectId]
   );
 
-  const { variants } = useMemo(() => {
+  const { program, footprint, variants } = useMemo(() => {
     if (!project?.brief) {
-      return { variants: [] as Variant[] };
+      return { program: null, footprint: null, variants: [] as Variant[] };
     }
 
     const style = (project.brief.preferences?.style as string) || 'moderne';
-    const _program = solveRoomProgram(project.brief.rooms, project.project_type, style);
+    const program = solveRoomProgram(project.brief.rooms, project.project_type, style);
 
     const parcelWidth = Math.max(15, Math.sqrt(project.surface_approx * 2));
     const parcelDepth = Math.max(15, project.surface_approx * 2 / parcelWidth);
-    const _footprint = generateFootprint(parcelWidth, parcelDepth, 0.5, project.project_type === 'mob_under_150' ? 8 : 12, {
+    const footprint = generateFootprint(parcelWidth, parcelDepth, 0.5, project.project_type === 'mob_under_150' ? 8 : 12, {
       front: 3, side: 1.5, rear: 3,
     });
 
-    const generated = generateVariants(_program.rooms, _footprint);
-    // Map solver DesignVariant to the Variant type expected by the UI
-    const variants: Variant[] = generated.map((v) => ({
-      ...v,
-      description: v.strategy,
-      rooms: v.floorPlan.rooms.map((r) => ({
-        id: r.id,
-        type: r.type,
-        surface: r.surface,
-        x: r.x,
-        y: r.y,
-        width: r.width,
-        depth: r.depth,
-      })),
-      footprint: {
-        width: _footprint.width,
-        depth: _footprint.depth,
-        surface: _footprint.width * _footprint.depth,
-        cos: 0.5,
-        heightMax: _footprint.maxHeight,
-        reculs: { front: 3, side: 1.5, rear: 3 },
-        buildableWidth: _footprint.width,
-        buildableDepth: _footprint.depth,
-      },
-      scores: {
-        surface: v.scores.surface,
-        ensoleillement: v.scores.sunExposure,
-        cout: v.scores.costEfficiency,
-        esthetique: v.scores.aesthetics,
-        total: v.scores.overall,
-      },
-      conformite: {
-        score: v.conformityScore,
-        checks: [],
-      },
-    }));
+    const variants = generateVariants(program.rooms, footprint);
 
-    return { variants };
+    return { program, footprint, variants };
   }, [project]);
 
   const selectedVariant = useMemo(() =>

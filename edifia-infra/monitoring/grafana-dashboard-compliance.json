@@ -1,0 +1,223 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "edifia-compliance",
+    "title": "EDIFIA — Conformite",
+    "tags": ["edifia", "compliance", "sprint1"],
+    "timezone": "Europe/Paris",
+    "schemaVersion": 38,
+    "refresh": "30s",
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Regles par categorie",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "displayMode": "table"
+            }
+          }
+        },
+        "options": {
+          "pieType": "donut",
+          "legend": {
+            "displayMode": "list",
+            "placement": "right",
+            "values": ["value"]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum by (categorie) (edifia_regles_total)",
+            "legendFormat": "{{categorie}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 2,
+        "title": "Taux de conformite (%)",
+        "type": "gauge",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {
+                  "value": 0,
+                  "color": "red"
+                },
+                {
+                  "value": 60,
+                  "color": "yellow"
+                },
+                {
+                  "value": 80,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        },
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "targets": [
+          {
+            "expr": "(edifia_conformite_score / edifia_conformite_max) * 100",
+            "legendFormat": "Conformite",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      },
+      {
+        "id": 3,
+        "title": "Evaluations par projet",
+        "type": "table",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "displayMode": "color-background",
+              "filterable": true
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Score"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "percent"
+                },
+                {
+                  "id": "thresholds",
+                  "value": {
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 60,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 80,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "targets": [
+          {
+            "expr": "edifia_evaluation_projet",
+            "format": "table",
+            "instant": true,
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          },
+          {
+            "id": "organize",
+            "options": {
+              "indexByName": {
+                "projet": 0,
+                "score": 1,
+                "date": 2,
+                "evaluateur": 3
+              },
+              "renameByName": {
+                "projet": "Projet",
+                "score": "Score",
+                "date": "Date",
+                "evaluateur": "Evaluateur"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Temps d'evaluation",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 18
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "d",
+            "min": 0,
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "fillOpacity": 15,
+              "pointSize": 4
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "calcs": ["mean", "max"],
+            "displayMode": "table",
+            "placement": "bottom"
+          }
+        },
+        "targets": [
+          {
+            "expr": "edifia_evaluation_duree_jours",
+            "legendFormat": "{{projet}} — {{phase}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus"
+      }
+    ]
+  },
+  "overwrite": true
+}

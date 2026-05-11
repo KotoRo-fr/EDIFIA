@@ -1,0 +1,23 @@
+rule:
+  code: "INC-ISSUE-002"
+  name: "Largeur minimale des issues"
+  category: "incendie"
+  description: "Verifie que les issues ont une largeur minimale de 90 cm"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "largeur_issue"
+        source: "batiment.materiaux"
+      - name: "largeur_min_issue"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "largeur_issue >= largeur_min_issue"
+  error_message:
+    fr: "La largeur de l'issue ({largeur_issue}cm) est insuffisante. Minimum: {largeur_min_issue}cm"
+  source:
+    document: "Code de la construction"
+    article: "R.122-11 - Dimensions des issues"
+    reference: "Arrete du 30 juin 1983"

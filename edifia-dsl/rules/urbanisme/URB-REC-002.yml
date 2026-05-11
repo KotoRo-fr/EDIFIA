@@ -1,0 +1,23 @@
+rule:
+  code: "URB-REC-002"
+  name: "Recul lateral minimum"
+  category: "urbanisme"
+  description: "Verifie que le batiment respecte le recul lateral minimum par rapport aux limites separatives"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "recul_lateral"
+        source: "parcelle.setbacks.side"
+      - name: "recul_min_lateral"
+        source: "plu.setbacks.side"
+    operation: "gte"
+    expression: "recul_lateral >= recul_min_lateral"
+  error_message:
+    fr: "Le recul lateral ({recul_lateral}m) est insuffisant. Minimum requis: {recul_min_lateral}m"
+  source:
+    document: "PLU"
+    article: "Article 5bis - Reculs lateraux"

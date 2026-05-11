@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-STATION-001"
+  name: "Stationnement PMR reserve"
+  category: "pmr"
+  description: "Verifie que le nombre de places de stationnement reservees aux PMR est suffisant"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "places_pmr"
+        source: "batiment.niveaux"
+      - name: "places_pmr_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "places_pmr >= places_pmr_min"
+  error_message:
+    fr: "Nombre de places PMR insuffisant: {places_pmr} < {places_pmr_min}"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-5 - Stationnement"
+    reference: "Norme NF P99-611"

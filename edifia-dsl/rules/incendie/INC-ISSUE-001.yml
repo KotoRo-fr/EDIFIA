@@ -1,0 +1,23 @@
+rule:
+  code: "INC-ISSUE-001"
+  name: "Deux issues si surface > 100m²"
+  category: "incendie"
+  description: "Verifie que les locaux de plus de 100m² disposent d'au moins 2 issues distinctes"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_issues"
+        source: "batiment.niveaux"
+      - name: "nb_issues_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "nb_issues >= nb_issues_min"
+  error_message:
+    fr: "Le local necessite {nb_issues_min} issues mais n'en compte que {nb_issues}"
+  source:
+    document: "Code de la construction"
+    article: "R.122-5 - Issues de secours"
+    reference: "Arrete du 30 juin 1983"

@@ -1,0 +1,26 @@
+rule:
+  code: "URB-PARK-001"
+  name: "Stationnement minimum"
+  category: "urbanisme"
+  description: "Verifie que le projet prevoit au moins 1 place de stationnement par tranche de 100m² de surface habitable"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "seuil_parking"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= seuil_parking"
+  error_message:
+    fr: "La surface habitable ({surface_habitable}m²) necessite un stationnement conforme au PLU"
+  source:
+    document: "PLU"
+    article: "Stationnement et garages"
+    reference: "Article L111-1-1 du Code de l'urbanisme"
+  metadata:
+    places_par_100m2: 1

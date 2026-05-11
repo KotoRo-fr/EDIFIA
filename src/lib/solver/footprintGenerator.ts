@@ -4,7 +4,7 @@
  * respecting urban planning constraints: COS, setbacks, and height limits.
  */
 
-import type { Footprint } from './types';
+import { Footprint } from './types';
 
 /**
  * Generates the buildable footprint inside a parcel.

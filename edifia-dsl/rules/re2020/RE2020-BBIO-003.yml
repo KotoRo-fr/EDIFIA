@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-BBIO-003"
+  name: "Bbio max - extension de batiment"
+  category: "re2020"
+  description: "Verifie que l'indicateur Bbio des extensions est inferieur a 1.5"
+  severity: "blocking"
+  applicability:
+    project_types: ["extension_under_40"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "bbio_extension"
+        source: "variante.surface_habitable"
+      - name: "bbio_max_extension"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "bbio_extension <= bbio_max_extension"
+  error_message:
+    fr: "Le Bbio de l'extension ({bbio_extension}) depasse la valeur limite pour les extensions ({bbio_max_extension})"
+  source:
+    document: "RE2020"
+    article: "Article 4ter - Bbio extensions"
+    reference: "Arrete du 30 mars 2022"

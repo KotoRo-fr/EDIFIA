@@ -1,0 +1,26 @@
+rule:
+  code: "URB-BRUIT-001"
+  name: "Affichage zone bruit"
+  category: "urbanisme"
+  description: "Verifie que les ERP dans les zones de bruit respectent les regles d'isolement acoustique"
+  severity: "major"
+  applicability:
+    project_types: ["new_build"]
+    zones: ["U"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_niveaux"
+        source: "batiment.niveaux"
+      - name: "seuil_min"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "nb_niveaux >= seuil_min"
+  error_message:
+    fr: "Le batiment de {nb_niveaux} niveaux doit respecter les normes d'isolement acoustique des zones de bruit"
+  source:
+    document: "PLU"
+    article: "Zones de bruit"
+    reference: "Carte de bruit du PLU"
+  metadata:
+    note: "Affichage informatif — verification manuelle requise"

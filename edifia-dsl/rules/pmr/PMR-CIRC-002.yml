@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-CIRC-002"
+  name: "Demi-tour fauteuil roulant"
+  category: "pmr"
+  description: "Verifie que les espaces permettent un demi-tour de fauteuil roulant de 150 cm de diametre"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "diametre_demivtour"
+        source: "variante.surface_habitable"
+      - name: "diametre_min"
+        source: "batiment.materiaux"
+    operation: "gte"
+    expression: "diametre_demivtour >= diametre_min"
+  error_message:
+    fr: "Le diametre de demi-tour ({diametre_demivtour}cm) est insuffisant. Minimum: {diametre_min}cm"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-8 - Manoeuvres en fauteuil"
+    reference: "Norme NF P99-611"

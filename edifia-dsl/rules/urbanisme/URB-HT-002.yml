@@ -1,0 +1,23 @@
+rule:
+  code: "URB-HT-002"
+  name: "Hauteur maximale selon la zone"
+  category: "urbanisme"
+  description: "Verifie que la hauteur respecte les limites specifiques a la zone d'urbanisme"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "hauteur_max_zone"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= hauteur_max_zone"
+  error_message:
+    fr: "La hauteur ({hauteur}m) depasse le plafond autorise pour cette zone ({hauteur_max_zone}m)"
+  source:
+    document: "PLU"
+    article: "Article 4bis - Hauteur selon zones"

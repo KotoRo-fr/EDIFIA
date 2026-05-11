@@ -1,0 +1,26 @@
+rule:
+  code: "URB-COS-002"
+  name: "COS zone urbaine (U)"
+  category: "urbanisme"
+  description: "Verifie le COS specifique pour les constructions en zone urbaine"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U"]
+    communes: ["74010", "74011"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_au_sol"
+        source: "variante.surface_au_sol"
+      - name: "cos_zone_u"
+        source: "plu.cos_max"
+      - name: "surface_parcelle"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_au_sol <= cos_zone_u * surface_parcelle"
+  error_message:
+    fr: "Le COS en zone U est depasse: {surface_au_sol}m² > {cos_zone_u} x {surface_parcelle}m²"
+  source:
+    document: "PLU"
+    article: "Article 3bis - COS zone U"

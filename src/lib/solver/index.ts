@@ -20,7 +20,7 @@ export * from './variantGenerator';
 
 // ─── Legacy compatibility wrappers ─────────────────────────────────────────────
 
-import type { Program, SunRecommendation, BudgetEstimate } from './types';
+import { Program, SunRecommendation, BudgetEstimate } from './types';
 
 /** Legacy sun-analysis wrapper (returns format expected by ProgrammingPage) */
 export function analyzeSunExposure(program: Program): Array<{
@@ -46,7 +46,7 @@ export function estimateBudget(
   totalSurface: number,
   projectType: string
 ): BudgetEstimate & { pricePerM2: number } {
-  const style: string = 'moderne';
+  const style = 'moderne';
   const material =
     style === 'contemporain' || style === 'moderne' ? 'bois' : 'traditionnelle';
 

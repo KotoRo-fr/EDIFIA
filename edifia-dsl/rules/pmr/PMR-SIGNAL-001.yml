@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-SIGNAL-001"
+  name: "Signaletique contraste"
+  category: "pmr"
+  description: "Verifie que la signaletique est suffisamment contrastee pour les personnes malvoyantes"
+  severity: "minor"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "contraste_signal"
+        source: "batiment.materiaux"
+      - name: "contraste_min"
+        source: "variante.surface_habitable"
+    operation: "gte"
+    expression: "contraste_signal >= contraste_min"
+  error_message:
+    fr: "Le contraste de la signaletique ({contraste_signal}) est insuffisant. Minimum: {contraste_min}"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-6 - Signaletique"
+    reference: "Norme NF P99-611"

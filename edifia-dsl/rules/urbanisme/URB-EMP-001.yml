@@ -1,0 +1,23 @@
+rule:
+  code: "URB-EMP-001"
+  name: "Emprise au sol maximale"
+  category: "urbanisme"
+  description: "Verifie que l'emprise au sol de la construction ne depasse pas le maximum autorise"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40", "mob_under_150"]
+    zones: ["U"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "emprise"
+        source: "variante.emprise"
+      - name: "emprise_max"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "emprise <= emprise_max"
+  error_message:
+    fr: "L'emprise au sol ({emprise}m²) depasse la surface de la parcelle ({emprise_max}m²)"
+  source:
+    document: "PLU"
+    article: "Article 3 - Emprise au sol"

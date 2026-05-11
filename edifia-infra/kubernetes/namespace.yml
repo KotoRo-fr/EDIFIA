@@ -1,0 +1,10 @@
+# ============================================================
+# EDIFIA — Namespace
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edifia
+  labels:
+    app: edifia
+    env: production

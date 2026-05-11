@@ -72,7 +72,7 @@ export async function getComplianceReport(projectId: string): Promise<{ url: str
 
 // ─── Site Intelligence API ───────────────────────────────
 
-export async function getSiteIntel(_projectId: string): Promise<SiteIntelData> {
+export async function getSiteIntel(projectId: string): Promise<SiteIntelData> {
   await delay(600);
   return mockSiteIntel;
 }
@@ -87,7 +87,7 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
   };
 }
 
-export async function getPLU(_communeCode: string): Promise<SiteIntelData['plu'] | null> {
+export async function getPLU(communeCode: string): Promise<SiteIntelData['plu'] | null> {
   await delay(400);
   return mockSiteIntel.plu;
 }

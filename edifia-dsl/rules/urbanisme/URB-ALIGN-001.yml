@@ -1,0 +1,23 @@
+rule:
+  code: "URB-ALIGN-001"
+  name: "Alignement facade sur rue"
+  category: "urbanisme"
+  description: "Verifie que le recul de facade respecte l'alignement impose par le PLU"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "recul_front"
+        source: "parcelle.setbacks.front"
+      - name: "recul_plu_front"
+        source: "plu.setbacks.front"
+    operation: "gte"
+    expression: "recul_front >= recul_plu_front"
+  error_message:
+    fr: "Le recul de facade ({recul_front}m) est inferieur a l'alignement PLU ({recul_plu_front}m)"
+  source:
+    document: "PLU"
+    article: "Reglement graphique - Alignement"

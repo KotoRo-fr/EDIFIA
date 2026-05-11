@@ -1,0 +1,17 @@
+# ============================================================
+# EDIFIA — PostgreSQL Persistent Volume Claim
+# ============================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: edifia
+  labels:
+    app: edifia
+    tier: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

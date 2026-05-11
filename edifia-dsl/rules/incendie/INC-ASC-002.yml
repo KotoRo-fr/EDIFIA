@@ -1,0 +1,26 @@
+rule:
+  code: "INC-ASC-002"
+  name: "Cage d'escalier protection"
+  category: "incendie"
+  description: "Verifie que les cages d'escalier des batiments de plus de 2 niveaux sont protegees contre l'incendie"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "nb_niveaux"
+        source: "batiment.niveaux"
+      - name: "seuil_escalier"
+        source: "variante.niveaux"
+    operation: "gte"
+    expression: "nb_niveaux >= seuil_escalier"
+  error_message:
+    fr: "La cage d'escalier du batiment de {nb_niveaux} niveaux doit avoir une protection incendie (EI 120 min)"
+  source:
+    document: "Code de la construction"
+    article: "R.122-3 - Escaliers"
+    reference: "Arrete du 30 juin 1983"
+  metadata:
+    resistance_feu_min: "EI 120"
+    portes_paliere: "CF 1/2h minimum"

@@ -1,0 +1,23 @@
+rule:
+  code: "PMR-ACC-002"
+  name: "WC PMR accessible"
+  category: "pmr"
+  description: "Verifie que les WC accessibles aux PMR respectent les dimensions et equipements requis"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_wc_pmr"
+        source: "variante.surface_habitable"
+      - name: "surface_wc_min"
+        source: "batiment.materiaux"
+    operation: "gte"
+    expression: "surface_wc_pmr >= surface_wc_min"
+  error_message:
+    fr: "La surface du WC PMR ({surface_wc_pmr}m²) est insuffisante. Minimum: {surface_wc_min}m²"
+  source:
+    document: "Code de la construction"
+    article: "R.111-18-7 - WC accessibles"
+    reference: "Norme NF P99-611"

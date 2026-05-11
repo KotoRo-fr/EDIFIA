@@ -1,0 +1,26 @@
+rule:
+  code: "RE2020-ATT-001"
+  name: "Attenuation thermique ete"
+  category: "re2020"
+  description: "Verifie que l'indicateur d'attenuation thermique ete (ATH) est inferieur au maximum autorise"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "ath"
+        source: "variante.surface_habitable"
+      - name: "ath_max"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "ath <= ath_max"
+  error_message:
+    fr: "L'indicateur d'attenuation thermique ete ({ath}) depasse le maximum autorise ({ath_max})"
+  source:
+    document: "RE2020"
+    article: "Article 5 - Confort d'ete"
+    reference: "Arrete du 30 mars 2022"
+  metadata:
+    ath_max_maisons: 2.5
+    ath_max_appartements: 3.0

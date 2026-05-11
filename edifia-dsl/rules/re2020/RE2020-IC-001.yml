@@ -1,0 +1,23 @@
+rule:
+  code: "RE2020-IC-001"
+  name: "Ic max - Impact Carbone"
+  category: "re2020"
+  description: "Verifie que l'indicateur d'Impact Carbone (Ic) est inferieur a 1.8 kgCO2e/m².an"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "ic"
+        source: "variante.surface_habitable"
+      - name: "ic_max"
+        source: "plu.zone"
+    operation: "lte"
+    expression: "ic <= ic_max"
+  error_message:
+    fr: "L'impact carbone ({ic} kgCO2e/m².an) depasse la limite autorisee ({ic_max} kgCO2e/m².an)"
+  source:
+    document: "RE2020"
+    article: "Article 6 - Impact carbone"
+    reference: "Decret n°2021-894"
