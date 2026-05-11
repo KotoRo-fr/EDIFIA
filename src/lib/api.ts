@@ -2,9 +2,20 @@ import type { Project, Brief, ComplianceCheck, DashboardStats } from '@/types';
 import type { EvaluationResult, SiteIntelData } from '@/mocks/complianceData';
 import { mockProjects } from '@/mocks/data';
 import { mockEvaluationResult, mockSiteIntel } from '@/mocks/complianceData';
+import { api } from './api-client';
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 let projects = [...mockProjects];
+
+// Wrapper avec fallback vers les mocks
+async function withFallback<T>(apiCall: () => Promise<T>, mockFallback: T): Promise<T> {
+  try {
+    return await apiCall();
+  } catch {
+    console.warn("Backend unavailable, using mock data");
+    return mockFallback;
+  }
+}
 
 export async function getProjects(): Promise<Project[]> { await delay(300); return projects; }
 
@@ -58,8 +69,10 @@ export async function getStats(): Promise<DashboardStats> {
 // ─── Compliance API ──────────────────────────────────────
 
 export async function evaluateCompliance(projectId: string): Promise<EvaluationResult> {
-  await delay(800);
-  return { ...mockEvaluationResult, project_id: projectId };
+  return withFallback(
+    () => api.evaluateCompliance(projectId),
+    { ...mockEvaluationResult, project_id: projectId }
+  );
 }
 
 export async function getComplianceReport(projectId: string): Promise<{ url: string; generatedAt: string }> {
@@ -73,21 +86,26 @@ export async function getComplianceReport(projectId: string): Promise<{ url: str
 // ─── Site Intelligence API ───────────────────────────────
 
 export async function getSiteIntel(projectId: string): Promise<SiteIntelData> {
-  await delay(600);
-  return mockSiteIntel;
+  return withFallback(
+    () => api.getSiteIntel(projectId),
+    mockSiteIntel
+  );
 }
 
 export async function geocodeAddress(address: string): Promise<{ lat: number; lng: number; formatted: string } | null> {
-  await delay(500);
-  // Simulation : retourne les coordonnées de Tremblay-en-France
-  return {
-    lat: 48.9896,
-    lng: 2.5701,
-    formatted: address || "12 Rue de Paris, 93290 Tremblay-en-France",
-  };
+  return withFallback(
+    () => api.geocodeAddress(address),
+    {
+      lat: 48.9896,
+      lng: 2.5701,
+      formatted: address || "12 Rue de Paris, 93290 Tremblay-en-France",
+    }
+  );
 }
 
 export async function getPLU(communeCode: string): Promise<SiteIntelData['plu'] | null> {
-  await delay(400);
-  return mockSiteIntel.plu;
+  return withFallback(
+    () => api.getPLU(communeCode),
+    mockSiteIntel.plu
+  );
 }

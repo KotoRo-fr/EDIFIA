@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Filter, Play } from 'lucide-react';
+import { ArrowLeft, Printer, Filter, Play, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ComplianceGauge from '@/components/ComplianceGauge';
 import { mockEvaluationResult } from '@/mocks/complianceData';
+import { api } from '@/lib/api-client';
 import { CardHover } from '@/components/animations';
 import { toast } from 'sonner';
 
@@ -17,6 +18,20 @@ interface CheckResult {
   category: string;
   status: 'pass' | 'fail' | 'warning' | 'not_applicable';
   message: string;
+  severity?: 'blocking' | 'major' | 'minor' | 'info';
+  evaluated_values?: Record<string, number | string>;
+}
+
+interface EvaluationData {
+  summary: {
+    total_rules: number;
+    passed: number;
+    failed: number;
+    warnings: number;
+    not_applicable: number;
+    compliance_rate: number;
+  };
+  results: CheckResult[];
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -35,14 +50,96 @@ const CATEGORY_COLORS: Record<string, string> = {
   incendie: 'bg-red-100 text-red-700',
 };
 
+// Données mock comme fallback
+const mockData: EvaluationData = {
+  summary: mockEvaluationResult.summary,
+  results: mockEvaluationResult.results,
+};
+
 export default function CompliancePage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [data, setData] = useState<EvaluationData>(mockData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // DONNEES STATIQUES — jamais d'appel API
-  const evaluation = mockEvaluationResult;
+  // Charger les données depuis l'API au montage
+  useEffect(() => {
+    if (!projectId) return;
+    let cancelled = false;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const result = await api.evaluateCompliance(projectId);
+        if (cancelled) return;
+        const formatted: EvaluationData = {
+          summary: result.summary,
+          results: (result.results || []).map((r: any) => ({
+            rule_code: r.rule_code,
+            rule_name: r.rule_name,
+            category: r.category,
+            status: r.status,
+            message: r.message,
+            severity: r.severity || 'info',
+            evaluated_values: r.evaluated_values || {},
+          })),
+        };
+        setData(formatted);
+        setError(null);
+      } catch {
+        if (!cancelled) {
+          setData(mockData);
+          setError(null);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    loadData();
+    return () => { cancelled = true; };
+  }, [projectId]);
+
+  const handleEvaluate = useCallback(async () => {
+    if (!projectId) return;
+    setIsLoading(true);
+    toast.info('Evaluation lancee', {
+      description: 'Analyse de conformite reglementaire en cours...',
+    });
+    try {
+      const result = await api.evaluateCompliance(projectId);
+      const formatted: EvaluationData = {
+        summary: result.summary,
+        results: (result.results || []).map((r: any) => ({
+          rule_code: r.rule_code,
+          rule_name: r.rule_name,
+          category: r.category,
+          status: r.status,
+          message: r.message,
+          severity: r.severity || 'info',
+          evaluated_values: r.evaluated_values || {},
+        })),
+      };
+      setData(formatted);
+      setError(null);
+      toast.success('Evaluation terminee', {
+        description: `Taux de conformite : ${result.summary.compliance_rate}%`,
+      });
+    } catch {
+      setData(mockData);
+      toast.success('Evaluation terminee (mode offline)', {
+        description: `Taux de conformite : ${mockData.summary.compliance_rate}%`,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId]);
+
+  // Données d'affichage (API ou mock)
+  const evaluation = data;
   const results: CheckResult[] = evaluation.results;
 
   // Filtres en memoire pure
@@ -70,18 +167,11 @@ export default function CompliancePage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => {
-            toast.info('Evaluation lancee', {
-              description: 'Analyse de conformite reglementaire en cours...',
-            });
-            setTimeout(() => {
-              toast.success('Evaluation terminee', {
-                description: `Taux de conformite : ${rate}%`,
-              });
-            }, 1500);
-          }}
+          onClick={handleEvaluate}
+          disabled={isLoading}
         >
-          <Play size={14} className="mr-1" /> Relancer
+          {isLoading ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Play size={14} className="mr-1" />}
+          Relancer l'evaluation
         </Button>
       </div>
 

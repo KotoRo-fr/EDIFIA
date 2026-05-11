@@ -14,7 +14,6 @@ import { useAuth } from '@/lib/auth';
 import { mockEvaluationResult } from '@/mocks/complianceData';
 import type { EvaluationResult, ComplianceCheckResult } from '@/mocks/complianceData';
 import type { Project, Room, ComplianceCheck } from '@/types';
-import { CardHover } from '@/components/animations';
 import { toast } from 'sonner';
 
 // ─── Helpers ─────────────────────────────────────────────
