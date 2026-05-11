@@ -13,18 +13,27 @@
 
 ---
 
-## 2. Etat Actuel (Sprint 1 = TERMINE)
+## 2. Etat Actuel (Sprint 2 = TERMINE)
 
 ### Frontend (DEPLOYE)
 - **URL** : https://nhk3mqkjz52uk.kimi.page
 - **Pages fonctionnelles** (12) : Landing, Login, Dashboard, Projet+Timeline, Programmation, Conception (comparateur+2D+3D), Conformite, Site Intelligence, Livrables
-- **Donnees** : Mock statiques (pas de backend connecte)
+- **API client** : `src/lib/api-client.ts` avec fallback vers les mocks si backend indisponible
 - **Build** : 0 erreur TypeScript, bundle ~780KB
 
-### Backend (SQUELETTE)
-- FastAPI initialise mais pas de routers operationnels
-- DSL YAML : 70+ regles en 5 categories (urbanisme, DTU, RE2020, PMR, incendie)
-- Pas de base de donnees, pas de Redis, pas d'API externe
+### Backend (OPERATIONNEL)
+- FastAPI + Uvicorn sur port 8000
+- **Routers v2** : `/api/v2/compliance/`, `/api/v2/site/`
+- **Endpoints** : evaluate, report, list rules, rule detail, geocode, site intel, PLU
+- **Services** : cache (memoire), geocodage BAN (mock), PLU (10 communes), foncier
+- **Tests API** : 37/37 PASS (pytest)
+
+### DSL (OPERATIONNEL)
+- **Moteur complet** : models, parser YAML, engine (operators, resolver, registry, compliance engine)
+- **Regles** : 50+ regles YAML actives (urbanisme, DTU, RE2020, PMR, incendie)
+- **Evaluation** : deterministe end-to-end (projet → regles → resultat)
+- **Tests** : 86/86 PASS (pytest)
+- **Reporters** : JSON + HTML
 
 ### Infrastructure
 - Docker/K8s configs dans `edifia-infra/`
@@ -34,17 +43,37 @@
 
 ## 3. Backlog — Ce qui reste a faire
 
-### Sprint 2 (EN COURS) — Conformite Operationnelle + Site Intelligence
-- [ ] Integrer DSL YAML dans FastAPI (`dsl_integration.py`)
-- [ ] Router conformite v2 (`compliance_v2.py`) : POST evaluate, GET report, GET rules
-- [ ] Router site intelligence v2 (`site_intel_v2.py`) : GET geocode, GET intel, GET plu
-- [ ] Service geocodage BAN (`geocoding_service.py`) — mock pour l'instant
-- [ ] Service PLU (`plu_service.py`) — 10 communes pilotes
-- [ ] Service foncier (`foncier_service.py`) — cadastre, IGN, risques
-- [ ] Cache Redis (`cache_service.py`)
-- [ ] Connecter frontend au backend (remplacer mock data par appels API)
-- [ ] Tests E2E conformite + site intel (> 80% coverage)
-- [ ] Doc API OpenAPI/Swagger
+### Sprint 2 (TERMINE) ✅
+- [x] Integrer DSL YAML dans FastAPI (`dsl_integration.py`)
+- [x] Router conformite v2 (`compliance_v2.py`) : POST evaluate, GET report, GET rules
+- [x] Router site intelligence v2 (`site_intel_v2.py`) : GET geocode, GET intel, GET plu
+- [x] Service geocodage BAN (`geocoding_service.py`) — mock
+- [x] Service PLU (`plu_service.py`) — 10 communes pilotes
+- [x] Service foncier (`foncier_service.py`) — cadastre, risques
+- [x] Cache (`cache_service.py`) — memoire (placeholder Redis)
+- [x] Connecter frontend au backend avec fallback
+- [x] Tests API 37/37 PASS
+- [x] Doc API (`docs/API_DOCUMENTATION.md`)
+
+### Sprint 3 (A VENIR) — Moteur Reglementaire Avance
+- [ ] Solver parametric complet (6 algorithmes)
+- [ ] Generation automatique des variants architecturaux
+- [ ] Moteur de conformite avec 6000+ regles
+- [ ] Audit trail complet (DB PostgreSQL)
+- [ ] Base de donnees reelle (projets, utilisateurs, evaluations)
+- [ ] Auth JWT (remplacer le mock)
+
+### Sprint 4 (A VENIR) — Livraison Finale
+- [ ] Generation PDF cote serveur (CERFA, notices, rapports)
+- [ ] Integration cartographique IGN (LIDAR, cadastre)
+- [ ] Workflow multi-utilisateurs
+- [ ] Cache Redis reel
+
+### Sprint 5 (A VENIR) — Polish
+- [ ] Internationalisation FR/EN/ES
+- [ ] Optimisation mobile (code-splitting Three.js)
+- [ ] Monitoring (Prometheus/Grafana)
+- [ ] Tests E2E Playwright complets
 
 ### Sprint 3 — Moteur Reglementaire Avance
 - [ ] Solver parametric complet (6 algorithmes)
