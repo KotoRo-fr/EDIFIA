@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-MENU-001"
+  name: "Menuiseries exterieures - DTU 36.1"
+  category: "dtu"
+  description: "Verifie que les menuiseries exterieures respectent le DTU 36.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "surface_ref"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= surface_ref"
+  error_message:
+    fr: "Les menuiseries exterieures du logement de {surface_habitable}m² ne respectent pas le DTU 36.1"
+  source:
+    document: "DTU 36.1"
+    article: "Article 2 - Menuiseries exterieures"
+    reference: "Norme NF DTU 36.1"
+  metadata:
+    type_menuiserie: "PVC"

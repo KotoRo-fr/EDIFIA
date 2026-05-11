@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-ELEC-001"
+  name: "Installations electriques - NF C 15-100"
+  category: "dtu"
+  description: "Verifie que les installations electriques respectent la norme NF C 15-100"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40", "mob_under_150"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "puissance_min"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= puissance_min"
+  error_message:
+    fr: "L'installation electrique du logement de {surface_habitable}m² ne respecte pas la NF C 15-100"
+  source:
+    document: "NF C 15-100"
+    article: "Section 5 - Canalisations electriques"
+    reference: "UTE C 15-100"
+  metadata:
+    classement: "ICPE"

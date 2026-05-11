@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-ETANC-001"
+  name: "Etancheite - DTU 43.1"
+  category: "dtu"
+  description: "Verifie que l'etancheite des toitures terrasses respecte le DTU 43.1"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "surface_max"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= surface_max"
+  error_message:
+    fr: "L'etancheite de la toiture terrasse du logement de {surface_habitable}m² ne respecte pas le DTU 43.1"
+  source:
+    document: "DTU 43.1"
+    article: "Article 3 - Etancheite"
+    reference: "Norme NF DTU 43.1"
+  metadata:
+    classement: "I3"

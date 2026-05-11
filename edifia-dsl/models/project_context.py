@@ -1,12 +1,16 @@
-"""Modeles de contexte projet pour l'evaluation."""
+"""
+Modeles de contexte projet pour l'evaluation.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
 class Parcelle:
+    """Caracteristiques de la parcelle."""
+
     surface: float
     zone: str
     cos_max: float
@@ -16,6 +20,8 @@ class Parcelle:
 
 @dataclass
 class PLU:
+    """Reglement du PLU applicables."""
+
     zone: str
     cos_max: float
     height_max: float
@@ -24,6 +30,8 @@ class PLU:
 
 @dataclass
 class Variante:
+    """Variante de construction evaluee."""
+
     surface_au_sol: float
     surface_habitable: float
     hauteur: float
@@ -33,6 +41,8 @@ class Variante:
 
 @dataclass
 class Batiment:
+    """Caracteristiques du batiment."""
+
     type: str
     materiaux: str
     niveaux: int
@@ -40,6 +50,8 @@ class Batiment:
 
 @dataclass
 class ProjectContext:
+    """Contexte complet d'un projet de construction."""
+
     parcelle: Parcelle
     plu: PLU
     variante: Variante

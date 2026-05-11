@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-PLUMB-001"
+  name: "Plomberie sanitaire - DTU 60.1"
+  category: "dtu"
+  description: "Verifie que les installations de plomberie sanitaire respectent le DTU 60.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "seuil_plomberie"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= seuil_plomberie"
+  error_message:
+    fr: "L'installation de plomberie du logement de {surface_habitable}m² ne respecte pas le DTU 60.1"
+  source:
+    document: "DTU 60.1"
+    article: "Article 2 - Installations d'eau"
+    reference: "Norme NF DTU 60.1"
+  metadata:
+    pression_min: 2.0

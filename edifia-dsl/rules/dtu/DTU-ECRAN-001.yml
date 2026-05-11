@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-ECRAN-001"
+  name: "Ecrans de protection - Garde-corps"
+  category: "dtu"
+  description: "Verifie que les ecrans de protection (garde-corps) respectent le DTU 43.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "hauteur_min_garde_corps"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= hauteur_min_garde_corps"
+  error_message:
+    fr: "Les garde-corps ne respectent pas la hauteur minimale requise par le DTU 43.1"
+  source:
+    document: "DTU 43.1"
+    article: "Article 4 - Garde-corps et ecrans de protection"
+    reference: "Norme NF P01-012"
+  metadata:
+    hauteur_min_m: 1.0

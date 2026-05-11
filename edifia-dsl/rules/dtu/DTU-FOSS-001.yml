@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-FOSS-001"
+  name: "Fosses septiques - DTU 64.1"
+  category: "dtu"
+  description: "Verifie que les installations d'assainissement non collectif respectent le DTU 64.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "capacite_fosse"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_habitable <= capacite_fosse"
+  error_message:
+    fr: "La fosse septique pour le logement de {surface_habitable}m² ne respecte pas le DTU 64.1"
+  source:
+    document: "DTU 64.1"
+    article: "Article 4 - Assainissement non collectif"
+    reference: "Arrete du 7 septembre 2009"
+  metadata:
+    capacite_min_m3: 3.0

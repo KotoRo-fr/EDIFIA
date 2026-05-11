@@ -1,7 +1,5 @@
 """
-Parseur YAML pour les règles réglementaires EDIFIA.
-
-Charge les fichiers YAML de règles et les transforme en objets Rule Python.
+Parseur YAML pour les regles reglementaires EDIFIA.
 """
 
 from __future__ import annotations
@@ -15,21 +13,10 @@ from models.rule import Applicability, Formula, Rule, RuleInput, Source
 
 
 def parse_rule_file(filepath: str | Path) -> Rule:
-    """Parse un fichier YAML de règle et retourne un objet Rule.
-
-    Args:
-        filepath: Chemin vers le fichier YAML.
-
-    Returns:
-        Un objet Rule initialisé.
-
-    Raises:
-        FileNotFoundError: Si le fichier n'existe pas.
-        ValueError: Si le YAML est invalide ou mal structuré.
-    """
+    """Parse un fichier YAML de regle et retourne un objet Rule."""
     filepath = Path(filepath)
     if not filepath.exists():
-        raise FileNotFoundError(f"Fichier non trouvé : {filepath}")
+        raise FileNotFoundError(f"Fichier non trouve : {filepath}")
 
     try:
         with open(filepath, encoding="utf-8") as fh:
@@ -42,7 +29,7 @@ def parse_rule_file(filepath: str | Path) -> Rule:
 
     rule_data = data.get("rule", {})
     if not rule_data:
-        raise ValueError(f"Clé 'rule' manquante dans {filepath}")
+        raise ValueError(f"Cle 'rule' manquante dans {filepath}")
 
     # Parse inputs
     formula_data = rule_data.get("formula", {})
@@ -102,29 +89,18 @@ def parse_rule_file(filepath: str | Path) -> Rule:
 
 
 def parse_rule_directory(directory: str | Path) -> list[Rule]:
-    """Parse tous les fichiers YAML d'un répertoire (récursif).
-
-    Args:
-        directory: Chemin vers le répertoire contenant les règles.
-
-    Returns:
-        Liste des objets Rule trouvés, triés par code.
-
-    Raises:
-        FileNotFoundError: Si le répertoire n'existe pas.
-    """
+    """Parse tous les fichiers YAML d'un repertoire (recursif)."""
     directory = Path(directory)
     if not directory.exists():
-        raise FileNotFoundError(f"Répertoire non trouvé : {directory}")
+        raise FileNotFoundError(f"Repertoire non trouve : {directory}")
 
     rules: list[Rule] = []
     for filepath in sorted(directory.rglob("*.yml")):
         try:
             rule = parse_rule_file(filepath)
-            if rule.code:  # Ignorer les fichiers vides
+            if rule.code:
                 rules.append(rule)
         except (ValueError, KeyError):
-            # Ignorer les fichiers mal formés
             continue
 
     return sorted(rules, key=lambda r: r.code)

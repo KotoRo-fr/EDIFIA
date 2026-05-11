@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-STRUCT-001"
+  name: "Structures bois - DTU 31.1"
+  category: "dtu"
+  description: "Verifie que les structures en bois respectent le DTU 31.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "niveaux"
+        source: "variante.niveaux"
+      - name: "niveaux_max_bois"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "niveaux <= niveaux_max_bois"
+  error_message:
+    fr: "La structure en bois de {niveaux} niveaux ne respecte pas le DTU 31.1"
+  source:
+    document: "DTU 31.1"
+    article: "Article 2 - Structures bois"
+    reference: "Norme NF EN 1995-1-1"
+  metadata:
+    classe_bois: "C24"

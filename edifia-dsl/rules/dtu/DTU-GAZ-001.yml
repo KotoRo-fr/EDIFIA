@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-GAZ-001"
+  name: "Installations gaz - DTU 61.1"
+  category: "dtu"
+  description: "Verifie que les installations gaz respectent le DTU 61.1"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "securite_gaz"
+        source: "plu.cos_max"
+    operation: "lte"
+    expression: "surface_habitable <= securite_gaz * 1000"
+  error_message:
+    fr: "L'installation gaz du logement de {surface_habitable}m² ne respecte pas le DTU 61.1"
+  source:
+    document: "DTU 61.1"
+    article: "Article 3 - Installations gaz"
+    reference: "Norme NF DTU 61.1"
+  metadata:
+    pression_max_mbar: 37

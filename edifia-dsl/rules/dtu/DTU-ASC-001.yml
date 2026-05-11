@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-ASC-001"
+  name: "Ascenseurs - Regles techniques de securite"
+  category: "dtu"
+  description: "Verifie que les installations d'ascenseurs respectent les regles techniques de securite (DTU 75.1)"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "niveaux"
+        source: "variante.niveaux"
+      - name: "niveaux_max"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "niveaux <= niveaux_max"
+  error_message:
+    fr: "L'installation d'ascenseur ne respecte pas le DTU 75.1 pour {niveaux} niveaux"
+  source:
+    document: "DTU 75.1"
+    article: "Article 3 - Securite des ascenseurs"
+    reference: "Norme NF EN 81-20"
+  metadata:
+    norme_ref: "NF EN 81-20/50"

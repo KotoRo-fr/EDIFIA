@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-ISOL-001"
+  name: "Isolation thermique - DTU 27.1"
+  category: "dtu"
+  description: "Verifie que l'isolation thermique des parois respecte le DTU 27.1"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "resistance_thermique"
+        source: "plu.cos_max"
+    operation: "lte"
+    expression: "surface_habitable <= resistance_thermique * 500"
+  error_message:
+    fr: "L'isolation thermique du logement de {surface_habitable}m² ne respecte pas le DTU 27.1"
+  source:
+    document: "DTU 27.1"
+    article: "Article 4 - Isolation thermique"
+    reference: "Norme NF EN ISO 6946"
+  metadata:
+    r_min_m2k_w: 4.0

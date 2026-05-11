@@ -1,8 +1,5 @@
 """
-Résolveur de références pour le moteur de conformité EDIFIA.
-
-Permet de résoudre les chemins de type "variante.surface_au_sol" dans
-le contexte projet pour obtenir les valeurs associées.
+Resolveur de references pour le moteur de conformite EDIFIA.
 """
 
 from __future__ import annotations
@@ -13,37 +10,33 @@ from models.project_context import ProjectContext
 
 
 def resolve_reference(ref: str, context: ProjectContext) -> Any:
-    """Résout une référence de type 'variante.surface_au_sol' dans le contexte.
+    """Resout une reference de type 'variante.surface_au_sol' dans le contexte.
 
     Args:
-        ref: Chemin de la référence, ex: "variante.surface_au_sol",
-             "plu.cos_max", "parcelle.zone", "parcelle.setbacks.front".
-        context: Instance de ProjectContext contenant les données.
+        ref: Chemin de la reference, ex: "variante.surface_au_sol".
+        context: Instance de ProjectContext.
 
     Returns:
-        La valeur correspondante ou None si non trouvée.
+        La valeur correspondante ou None si non trouvee.
 
     Raises:
-        ValueError: Si la référence est mal formée ou si le champ est inconnu.
+        ValueError: Si la reference est mal formee ou si le champ est inconnu.
     """
     parts = ref.split(".")
     if len(parts) < 2:
         raise ValueError(
-            f"Référence mal formée : '{ref}' — format attendu : 'objet.champ[.sous_champ]'"
+            f"Reference mal formee : '{ref}' — format attendu : 'objet.champ'"
         )
 
     obj_name = parts[0]
     attr_path = parts[1:]
 
-    # Récupère l'objet racine
     root = getattr(context, obj_name, None)
     if root is None:
         raise ValueError(
-            f"Objet '{obj_name}' inconnu dans le contexte. "
-            f"Référence : '{ref}'"
+            f"Objet '{obj_name}' inconnue dans le contexte. Reference : '{ref}'"
         )
 
-    # Navigue dans les sous-attributs
     current: Any = root
     for part in attr_path:
         if current is None:

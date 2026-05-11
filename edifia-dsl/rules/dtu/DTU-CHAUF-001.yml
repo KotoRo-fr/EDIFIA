@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-CHAUF-001"
+  name: "Chauffage - DTU 65.1"
+  category: "dtu"
+  description: "Verifie que les installations de chauffage respectent le DTU 65.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_habitable"
+        source: "variante.surface_habitable"
+      - name: "puissance_chauffage"
+        source: "plu.cos_max"
+    operation: "lte"
+    expression: "surface_habitable <= puissance_chauffage * 200"
+  error_message:
+    fr: "L'installation de chauffage du logement de {surface_habitable}m² ne respecte pas le DTU 65.1"
+  source:
+    document: "DTU 65.1"
+    article: "Article 3 - Installations de chauffage"
+    reference: "Norme NF DTU 65.1"
+  metadata:
+    type_chauffage: "tout fluide"

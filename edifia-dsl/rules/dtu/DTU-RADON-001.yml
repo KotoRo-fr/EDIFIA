@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-RADON-001"
+  name: "Prevention du risque radon"
+  category: "dtu"
+  description: "Verifie que les mesures de prevention contre le radon sont conformes au DTU 68.3"
+  severity: "blocking"
+  applicability:
+    project_types: ["new_build"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "niveaux_sous_sol"
+        source: "variante.niveaux"
+      - name: "niveaux_max"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "niveaux_sous_sol <= niveaux_max"
+  error_message:
+    fr: "La prevention du risque radon n'est pas conforme au DTU 68.3 pour {niveaux_sous_sol} niveaux"
+  source:
+    document: "DTU 68.3"
+    article: "Article 6 - Protection contre le radon"
+    reference: "Circulaire DGS/EA3 du 8 juillet 2010"
+  metadata:
+    zone_risque: "3"

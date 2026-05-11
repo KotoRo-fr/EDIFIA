@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-MACON-001"
+  name: "Maconnerie - DTU 20.1"
+  category: "dtu"
+  description: "Verifie que les ouvrages en maconnerie respectent le DTU 20.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "surface_au_sol"
+        source: "variante.surface_au_sol"
+      - name: "surface_max"
+        source: "parcelle.surface"
+    operation: "lte"
+    expression: "surface_au_sol <= surface_max"
+  error_message:
+    fr: "Les ouvrages en maconnerie de {surface_au_sol}m² ne respectent pas le DTU 20.1"
+  source:
+    document: "DTU 20.1"
+    article: "Article 1 - Ouvrages en maconnerie"
+    reference: "Norme NF DTU 20.1"
+  metadata:
+    classe_beton: "C25/30"

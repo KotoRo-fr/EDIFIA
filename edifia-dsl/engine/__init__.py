@@ -1,5 +1,5 @@
 """
-Package engine du DSL Réglementaire EDIFIA.
+Package engine du DSL Reglementaire EDIFIA.
 """
 
 from engine.compliance_engine import (

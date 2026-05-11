@@ -1,0 +1,26 @@
+rule:
+  code: "DTU-COUV-001"
+  name: "Couverture - DTU 40.1"
+  category: "dtu"
+  description: "Verifie que la couverture du batiment respecte le DTU 40.1"
+  severity: "major"
+  applicability:
+    project_types: ["new_build", "extension_under_40"]
+    zones: ["U", "AU"]
+  formula:
+    type: "comparison"
+    input:
+      - name: "hauteur"
+        source: "variante.hauteur"
+      - name: "hauteur_max"
+        source: "plu.height_max"
+    operation: "lte"
+    expression: "hauteur <= hauteur_max"
+  error_message:
+    fr: "La couverture du batiment de {hauteur}m ne respecte pas le DTU 40.1 (hauteur max {hauteur_max}m)"
+  source:
+    document: "DTU 40.1"
+    article: "Article 2 - Couvertures"
+    reference: "Norme NF DTU 40.1"
+  metadata:
+    pente_min: 30
