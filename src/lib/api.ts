@@ -1,8 +1,11 @@
 import type { Project, Brief, ComplianceCheck, DashboardStats } from '@/types';
 import type { EvaluationResult, SiteIntelData } from '@/mocks/complianceData';
+import type { Program } from '@/lib/solver/types';
+import type { Variant } from '@/types/solver';
 import { mockProjects } from '@/mocks/data';
 import { mockEvaluationResult, mockSiteIntel } from '@/mocks/complianceData';
 import { api } from './api-client';
+import { solveRoomProgram, generateFootprint, generateVariants as solverVariants } from '@/lib/solver';
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 let projects = [...mockProjects];
@@ -107,5 +110,109 @@ export async function getPLU(communeCode: string): Promise<SiteIntelData['plu'] 
   return withFallback(
     () => api.getPLU(communeCode),
     mockSiteIntel.plu
+  );
+}
+
+// ─── Local solvers (fallback when backend is offline) ─────────────────────────
+
+function generateLocalProgram(rooms: any[], projectType: string, style: string): Program {
+  return solveRoomProgram(rooms, projectType, style);
+}
+
+function generateLocalVariants(projectId: string, strategyCount = 4): Variant[] {
+  const p = projects.find(proj => proj.id === projectId);
+  if (!p?.brief) return [];
+
+  const style = (p.brief.preferences?.style as string) || 'moderne';
+  const program = solveRoomProgram(p.brief.rooms, p.project_type, style);
+
+  const parcelWidth = Math.max(15, Math.sqrt(p.surface_approx * 2));
+  const parcelDepth = Math.max(15, p.surface_approx * 2 / parcelWidth);
+  const footprint = generateFootprint(parcelWidth, parcelDepth, 0.5, p.project_type === 'mob_under_150' ? 8 : 12, {
+    front: 3, side: 1.5, rear: 3,
+  });
+
+  const designVariants = solverVariants(program.rooms, footprint);
+
+  // Convert solver DesignVariant[] → page Variant[] format
+  return designVariants.slice(0, strategyCount).map((dv) => ({
+    id: dv.id,
+    name: dv.name,
+    description: dv.strategy,
+    rooms: dv.floorPlan.rooms.map((r, ri) => ({
+      id: r.id || `room-${ri}`,
+      type: r.type,
+      surface: r.surface,
+      x: r.x,
+      y: r.y,
+      width: r.width,
+      depth: r.depth,
+    })),
+    footprint: {
+      width: footprint.width,
+      depth: footprint.depth,
+      surface: footprint.surface ?? 0,
+      cos: footprint.cos ?? 0.5,
+      heightMax: footprint.maxHeight,
+      reculs: footprint.reculs ?? { front: 3, side: 1.5, rear: 3 },
+      buildableWidth: footprint.buildableWidth ?? footprint.width,
+      buildableDepth: footprint.buildableDepth ?? footprint.depth,
+    },
+    scores: {
+      surface: dv.scores.surface,
+      ensoleillement: dv.scores.sunExposure,
+      cout: dv.scores.costEfficiency,
+      esthetique: dv.scores.aesthetics,
+      total: dv.scores.overall,
+    },
+    conformite: {
+      score: dv.conformityScore,
+      checks: [
+        { label: 'Surface constructible respectee', pass: dv.scores.surface >= 60 },
+        { label: 'Hauteur maximale respectee', pass: dv.conformityScore >= 70 },
+        { label: 'Reculs de voirie respectes', pass: dv.scores.sunExposure >= 50 },
+        { label: 'Accessibilite PMR', pass: dv.conformityScore >= 80 },
+      ],
+    },
+    isSelected: false,
+  }));
+}
+
+// ─── Programming API ─────────────────────────────────────
+
+export async function generateProgram(projectId: string, rooms: any[], projectType: string, style: string): Promise<Program> {
+  return withFallback(
+    () => api.generateProgram(projectId, rooms, projectType, style),
+    generateLocalProgram(rooms, projectType, style)
+  );
+}
+
+export async function getProgram(projectId: string): Promise<Program | null> {
+  return withFallback(
+    () => api.getProgram(projectId),
+    null
+  );
+}
+
+// ─── Design API ──────────────────────────────────────────
+
+export async function generateVariants(projectId: string, strategyCount = 4): Promise<Variant[]> {
+  return withFallback(
+    () => api.generateVariants(projectId, strategyCount),
+    generateLocalVariants(projectId, strategyCount)
+  );
+}
+
+export async function listVariants(projectId: string): Promise<Variant[]> {
+  return withFallback(
+    () => api.listVariants(projectId),
+    generateLocalVariants(projectId)
+  );
+}
+
+export async function selectVariant(projectId: string, variantId: string): Promise<void> {
+  return withFallback(
+    () => api.selectVariant(projectId, variantId),
+    undefined
   );
 }

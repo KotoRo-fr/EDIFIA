@@ -15,7 +15,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { mockProjects } from '@/mocks/data';
-import { solveRoomProgram, generateFootprint, generateVariants } from '@/lib/solver';
+import { generateVariants as generateVariantsApi } from '@/lib/api';
 import VariantComparison from '@/components/viewers/VariantComparison';
 import Plan2DViewer from '@/components/viewers/Plan2DViewer';
 import Viewer3D from '@/components/viewers/Viewer3D';
@@ -53,45 +53,42 @@ export default function DesignPage() {
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
   const [validatedVariantId, setValidatedVariantId] = useState<string | null>(null);
+  const [variants, setVariants] = useState<Variant[]>([]);
 
   const project = useMemo(() =>
     mockProjects.find(p => p.id === projectId),
     [projectId]
   );
 
-  const variants = useMemo(() => {
-    if (!project?.brief) {
-      return [] as Variant[];
-    }
-
-    const style = (project.brief.preferences?.style as string) || 'moderne';
-    const program = solveRoomProgram(project.brief.rooms, project.project_type, style);
-
-    const parcelWidth = Math.max(15, Math.sqrt(project.surface_approx * 2));
-    const parcelDepth = Math.max(15, project.surface_approx * 2 / parcelWidth);
-    const footprint = generateFootprint(parcelWidth, parcelDepth, 0.5, project.project_type === 'mob_under_150' ? 8 : 12, {
-      front: 3, side: 1.5, rear: 3,
-    });
-
-    return generateVariants(program.rooms, footprint) as unknown as Variant[];
-  }, [project]);
-
   const selectedVariant = useMemo(() =>
     variants.find(v => v.id === selectedVariantId) || null,
     [variants, selectedVariantId]
   );
 
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
+    if (!projectId) return;
+
+    // Appel API avec fallback automatique vers solver local
+    const result = await generateVariantsApi(projectId);
+    setVariants(result);
     setVariantsGenerated(true);
-  }, []);
+  }, [projectId]);
 
   const handleRelaunch = useCallback(() => {
     setSelectedVariantId(null);
     setValidatedVariantId(null);
-    // En réel, on re-génèrerait ici. Avec des mocks, on recharge simplement.
     setVariantsGenerated(false);
-    setTimeout(() => setVariantsGenerated(true), 100);
-  }, []);
+    setVariants([]);
+
+    // Petit delai pour l'animation UI puis re-generation
+    setTimeout(() => {
+      if (!projectId) return;
+      generateVariantsApi(projectId).then((result) => {
+        setVariants(result);
+        setVariantsGenerated(true);
+      });
+    }, 100);
+  }, [projectId]);
 
   const handleValidate = useCallback(() => {
     if (selectedVariantId) {

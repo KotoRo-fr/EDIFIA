@@ -41,6 +41,36 @@ class ApiClient {
   getPLU(communeCode: string) {
     return this.request(`/site/plu/${communeCode}`);
   }
+
+  // ─── Programming ─────────────────────────────────────────
+
+  async generateProgram(projectId: string, rooms: any[], projectType: string, style: string) {
+    return this.request(`/programming/generate/${projectId}`, {
+      method: "POST",
+      body: JSON.stringify({ rooms, project_type: projectType, style }),
+    });
+  }
+
+  async getProgram(projectId: string) {
+    return this.request(`/programming/${projectId}`);
+  }
+
+  // ─── Design ──────────────────────────────────────────────
+
+  async generateVariants(projectId: string, strategyCount = 4) {
+    return this.request(`/design/generate/${projectId}`, {
+      method: "POST",
+      body: JSON.stringify({ strategy_count: strategyCount }),
+    });
+  }
+
+  async listVariants(projectId: string) {
+    return this.request(`/design/${projectId}`);
+  }
+
+  async selectVariant(projectId: string, variantId: string) {
+    return this.request(`/design/select/${projectId}/${variantId}`, { method: "POST" });
+  }
 }
 
 export const api = new ApiClient();

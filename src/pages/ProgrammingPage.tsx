@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import {
   ArrowLeft,
@@ -11,9 +11,12 @@ import {
   CircleDollarSign,
   TrendingUp,
   AlertCircle,
+  Server,
 } from 'lucide-react';
 import { mockProjects } from '@/mocks/data';
-import { solveRoomProgram, generateFootprint, analyzeSunExposure, estimateBudget } from '@/lib/solver';
+import { generateFootprint, analyzeSunExposure, estimateBudget, solveRoomProgram } from '@/lib/solver';
+import type { Program } from '@/lib/solver/types';
+import { generateProgram } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -42,20 +45,19 @@ export default function ProgrammingPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [programGenerated, setProgramGenerated] = useState(false);
+  const [program, setProgram] = useState<Program | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [useApi, setUseApi] = useState(false);
 
   const project = useMemo(() =>
     mockProjects.find(p => p.id === projectId),
     [projectId]
   );
 
-  const { program, footprint, sunAnalysis, budget } = useMemo(() => {
-    if (!project?.brief) {
-      return { program: null, footprint: null, sunAnalysis: null, budget: null };
+  const { footprint, sunAnalysis, budget } = useMemo(() => {
+    if (!project?.brief || !program) {
+      return { footprint: null, sunAnalysis: null, budget: null };
     }
-
-    const brief = project.brief;
-    const style = (brief.preferences?.style as string) || 'moderne';
-    const program = solveRoomProgram(brief.rooms, project.project_type, style);
 
     // Generate footprint with sensible defaults based on project surface
     const parcelWidth = Math.max(15, Math.sqrt(project.surface_approx * 2));
@@ -69,7 +71,38 @@ export default function ProgrammingPage() {
     const sunAnalysis = analyzeSunExposure(program);
     const budget = estimateBudget(program.surfaces?.total ?? 0, project.project_type);
 
-    return { program, footprint, sunAnalysis, budget };
+    return { footprint, sunAnalysis, budget };
+  }, [project, program]);
+
+  const handleGenerate = useCallback(async () => {
+    if (!project?.brief) return;
+    setIsLoading(true);
+
+    const brief = project.brief;
+    const style = (brief.preferences?.style as string) || 'moderne';
+
+    // Appel API avec fallback automatique vers solver local
+    const result = await generateProgram(
+      project.id,
+      brief.rooms,
+      project.project_type,
+      style
+    );
+    setProgram(result);
+    setProgramGenerated(true);
+    setIsLoading(false);
+  }, [project]);
+
+  const handleGenerateLocal = useCallback(() => {
+    if (!project?.brief) return;
+
+    const brief = project.brief;
+    const style = (brief.preferences?.style as string) || 'moderne';
+
+    // Solver local direct (mode offline)
+    const localProgram = solveRoomProgram(brief.rooms, project.project_type, style);
+    setProgram(localProgram);
+    setProgramGenerated(true);
   }, [project]);
 
   if (!project) {
@@ -83,8 +116,6 @@ export default function ProgrammingPage() {
       </div>
     );
   }
-
-  const handleGenerate = () => setProgramGenerated(true);
 
   return (
     <div className="p-6 lg:p-8 max-w-6xl space-y-6">
@@ -163,13 +194,38 @@ export default function ProgrammingPage() {
 
       {/* Bouton générer */}
       {!programGenerated && (
-        <div className="flex flex-col items-center justify-center py-8 bg-white rounded-xl border border-dashed border-slate-300">
+        <div className="flex flex-col items-center justify-center py-8 bg-white rounded-xl border border-dashed border-slate-300 space-y-3">
           <Sparkles size={32} className="text-orange-400 mb-3" />
           <p className="text-sm text-slate-600 mb-4">Générez le programme architectural à partir du brief</p>
-          <Button onClick={handleGenerate} className="bg-orange-600 hover:bg-orange-700 gap-2">
-            <Sparkles size={16} />
-            Générer le programme
-          </Button>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Button
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className="bg-orange-600 hover:bg-orange-700 gap-2"
+            >
+              <Sparkles size={16} />
+              {isLoading ? 'Generation en cours...' : 'Generer le programme'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setUseApi(!useApi)}
+              className="gap-2 text-slate-500"
+              title="Mode debug : forcer l\\'appel API ou le solver local"
+            >
+              <Server size={14} />
+              {useApi ? 'Mode API' : 'Mode auto (fallback)'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleGenerateLocal}
+              className="text-slate-400"
+              title="Forcer le solver local (mode offline)"
+            >
+              Solver local
+            </Button>
+          </div>
         </div>
       )}
 

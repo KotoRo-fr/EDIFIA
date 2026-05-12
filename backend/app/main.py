@@ -5,6 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.compliance_v2 import router as compliance_router
 from routers.site_intel_v2 import router as site_intel_router
+from routers.programming import router as programming_router
+from routers.design import router as design_router
+from routers.programming import router as programming_router
+from routers.design import router as design_router
 
 app = FastAPI(
     title="EDIFIA API",
@@ -26,6 +30,10 @@ app.add_middleware(
 # Include routers
 app.include_router(compliance_router)
 app.include_router(site_intel_router)
+app.include_router(programming_router)
+app.include_router(design_router)
+app.include_router(programming_router)
+app.include_router(design_router)
 
 
 @app.get("/health", tags=["Health"])
