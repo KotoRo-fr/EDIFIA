@@ -1,7 +1,7 @@
 # EDIFIA — Document de Reprise pour Agent Futur
 
 > Ce document permet a n'importe quel agent de reprendre le projet sans perte d'information.
-> Derniere mise a jour : 12 Mai 2026 — Sprints 1, 2, 3 termines.
+> Derniere mise a jour : 12 Mai 2026 — Sprints 1, 2, 3, 4 termines.
 
 ---
 
@@ -13,25 +13,27 @@
 
 ---
 
-## 2. Etat Actuel (Sprint 3 = TERMINE)
+## 2. Etat Actuel (Sprint 4 = TERMINE)
 
 ### Frontend (DEPLOYE)
 - **URL** : https://nhk3mqkjz52uk.kimi.page
 - **Pages fonctionnelles** (12) : Landing, Login, Dashboard, Projet+Timeline, Programmation, Conception (comparateur+2D+3D), Conformite, Site Intelligence, Livrables
 - **API client** : `src/lib/api-client.ts` avec fallback vers les solvers locaux si backend indisponible
 - **Solvers locaux** (1534 lignes) : roomSolver, footprintGenerator, parametricSolver, variantGenerator
+- **Composants livrables** : CerfaViewer, NoticeCalculViewer, RapportConformiteViewer, PlansViewer
 - **Build** : 0 erreur TypeScript, bundle ~785KB
 
 ### Backend (OPERATIONNEL)
 - FastAPI + Uvicorn sur port 8000
-- **Routers v2** : `/api/v2/compliance/`, `/api/v2/site/`, `/api/v2/programming/`, `/api/v2/design/`
+- **Routers v2** : `/api/v2/compliance/`, `/api/v2/site/`, `/api/v2/programming/`, `/api/v2/design/`, `/api/v2/deliverables/`
 - **Endpoints** :
   - Compliance : evaluate, report, list rules, rule detail
   - Site Intel : geocode, site intel, PLU
   - Programming : generate programme, get programme
   - Design : generate variants, list variants, select variant
+  - Deliverables : list documents, generate all, CERFA, notice, rapport, plans
 - **Services** : cache (memoire), geocodage BAN (mock), PLU (10 communes), foncier
-- **Tests API** : 67/67 PASS (pytest)
+- **Tests API** : 84/84 PASS (pytest)
 
 ### DSL (OPERATIONNEL)
 - **Moteur complet** : models, parser YAML, engine (operators, resolver, registry, compliance engine)
@@ -69,7 +71,13 @@
 - [x] Solvers TypeScript locaux (room, footprint, parametric, variant)
 - [x] Tests API 67/67 PASS
 
-### Sprint 4 (A VENIR) — Livraison Finale
+### Sprint 4 (TERMINE) ✅
+- [x] Router deliverables (`deliverables.py`) : list documents, generate all, CERFA, notice, rapport, plans
+- [x] Frontend deliverables connecte a l'API avec fallback
+- [x] 4 viewers : CerfaViewer, NoticeCalculViewer, RapportConformiteViewer, PlansViewer
+- [x] Tests API 84/84 PASS
+
+### Sprint 5 (A VENIR) — Production & Infrastructure
 - [ ] Generation PDF cote serveur (CERFA, notices, rapports) — WeasyPrint/Puppeteer
 - [ ] Integration cartographique IGN (LIDAR, cadastre, geoportail)
 - [ ] Base de donnees PostgreSQL (projets, utilisateurs, evaluations)
@@ -185,6 +193,14 @@ docker-compose -f edifia-infra/docker/docker-compose.yml up
 - `GET /api/v2/design/{project_id}` — Liste variantes
 - `POST /api/v2/design/select/{project_id}/{variant_id}` — Selectionne variante
 
+### Livrables
+- `GET /api/v2/deliverables/{project_id}` — Liste documents et status
+- `POST /api/v2/deliverables/generate/{project_id}` — Genere tous les documents
+- `GET /api/v2/deliverables/{project_id}/cerfa` — Donnees CERFA pre-remplies
+- `GET /api/v2/deliverables/{project_id}/notice` — Notice de calcul
+- `GET /api/v2/deliverables/{project_id}/rapport` — Rapport de conformite
+- `GET /api/v2/deliverables/{project_id}/plans` — Plans architecturaux
+
 ---
 
 ## 7. Points d'Attention
@@ -193,8 +209,8 @@ docker-compose -f edifia-infra/docker/docker-compose.yml up
 2. **Three.js est lourd** (1.56MB) — code-splitting recommande pour V2
 3. **API fallback** — Toutes les fonctions API ont un fallback vers les solvers locaux
 4. **Auth est mock** — Connexion automatique sans veritable backend
-5. **CERFA est HTML print-ready** — Pas de PDF genere cote serveur (Sprint 4)
-6. **Cache est en memoire** — Placeholder pour Redis (Sprint 4)
+5. **CERFA est HTML print-ready** — `window.print()` fonctionne, PDF serveur en V2 (Sprint 5)
+6. **Cache est en memoire** — Placeholder pour Redis (Sprint 5)
 7. **Pas de base de donnees** — Tout est en memoire/mock (Sprint 4)
 
 ---
