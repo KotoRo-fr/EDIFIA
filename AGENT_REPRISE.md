@@ -1,32 +1,37 @@
 # EDIFIA — Document de Reprise pour Agent Futur
 
 > Ce document permet a n'importe quel agent de reprendre le projet sans perte d'information.
-> Derniere mise a jour : 12 Mai 2026 — Sprint 1 termine, Sprint 2 en cours.
+> Derniere mise a jour : 12 Mai 2026 — Sprints 1, 2, 3 termines.
 
 ---
 
 ## 1. Contexte Projet
 
 **EDIFIA** = plateforme "Prompt-to-Building" qui transforme un prompt utilisateur en dossier de permis de construire complet.
-- Landing → Login → Dashboard → Projet → Programmation → Conception → Conformité → Livrables
+- Landing → Login → Dashboard → Projet → Programmation → Conception → Conformite → Livrables
 - Stack : React 19 + TypeScript + Tailwind + shadcn/ui (frontend) | FastAPI + Python (backend) | DSL YAML (regles)
 
 ---
 
-## 2. Etat Actuel (Sprint 2 = TERMINE)
+## 2. Etat Actuel (Sprint 3 = TERMINE)
 
 ### Frontend (DEPLOYE)
 - **URL** : https://nhk3mqkjz52uk.kimi.page
 - **Pages fonctionnelles** (12) : Landing, Login, Dashboard, Projet+Timeline, Programmation, Conception (comparateur+2D+3D), Conformite, Site Intelligence, Livrables
-- **API client** : `src/lib/api-client.ts` avec fallback vers les mocks si backend indisponible
-- **Build** : 0 erreur TypeScript, bundle ~780KB
+- **API client** : `src/lib/api-client.ts` avec fallback vers les solvers locaux si backend indisponible
+- **Solvers locaux** (1534 lignes) : roomSolver, footprintGenerator, parametricSolver, variantGenerator
+- **Build** : 0 erreur TypeScript, bundle ~785KB
 
 ### Backend (OPERATIONNEL)
 - FastAPI + Uvicorn sur port 8000
-- **Routers v2** : `/api/v2/compliance/`, `/api/v2/site/`
-- **Endpoints** : evaluate, report, list rules, rule detail, geocode, site intel, PLU
+- **Routers v2** : `/api/v2/compliance/`, `/api/v2/site/`, `/api/v2/programming/`, `/api/v2/design/`
+- **Endpoints** :
+  - Compliance : evaluate, report, list rules, rule detail
+  - Site Intel : geocode, site intel, PLU
+  - Programming : generate programme, get programme
+  - Design : generate variants, list variants, select variant
 - **Services** : cache (memoire), geocodage BAN (mock), PLU (10 communes), foncier
-- **Tests API** : 37/37 PASS (pytest)
+- **Tests API** : 67/67 PASS (pytest)
 
 ### DSL (OPERATIONNEL)
 - **Moteur complet** : models, parser YAML, engine (operators, resolver, registry, compliance engine)
@@ -35,61 +40,50 @@
 - **Tests** : 86/86 PASS (pytest)
 - **Reporters** : JSON + HTML
 
-### Infrastructure
-- Docker/K8s configs dans `edifia-infra/`
-- Playwright e2e (5 specs)
+### Solvers TypeScript (1534 lignes)
+- `roomSolver.ts` (217l) — Placement logique pieces, adjacences, ensoleillement, budget
+- `footprintGenerator.ts` (61l) — Calcul emprise au sol depuis PLU
+- `parametricSolver.ts` (785l) — Placement geometrique 2D (4 strategies)
+- `variantGenerator.ts` (269l) — 4 strategies (surface/ensoleillement/cout/esthetique)
 
 ---
 
 ## 3. Backlog — Ce qui reste a faire
 
-### Sprint 2 (TERMINE) ✅
-- [x] Integrer DSL YAML dans FastAPI (`dsl_integration.py`)
-- [x] Router conformite v2 (`compliance_v2.py`) : POST evaluate, GET report, GET rules
-- [x] Router site intelligence v2 (`site_intel_v2.py`) : GET geocode, GET intel, GET plu
-- [x] Service geocodage BAN (`geocoding_service.py`) — mock
-- [x] Service PLU (`plu_service.py`) — 10 communes pilotes
-- [x] Service foncier (`foncier_service.py`) — cadastre, risques
-- [x] Cache (`cache_service.py`) — memoire (placeholder Redis)
-- [x] Connecter frontend au backend avec fallback
-- [x] Tests API 37/37 PASS
-- [x] Doc API (`docs/API_DOCUMENTATION.md`)
+### Sprint 1 (TERMINE) ✅
+- [x] Frontend complet (12 pages, 27k lignes)
+- [x] Backend FastAPI (squelette)
+- [x] DSL YAML (70+ regles)
+- [x] Tests unitaires
 
-### Sprint 3 (A VENIR) — Moteur Reglementaire Avance
-- [ ] Solver parametric complet (6 algorithmes)
-- [ ] Generation automatique des variants architecturaux
-- [ ] Moteur de conformite avec 6000+ regles
-- [ ] Audit trail complet (DB PostgreSQL)
-- [ ] Base de donnees reelle (projets, utilisateurs, evaluations)
-- [ ] Auth JWT (remplacer le mock)
+### Sprint 2 (TERMINE) ✅
+- [x] Moteur DSL operationnel (models, parser, engine, registry, compliance engine)
+- [x] Routers compliance v2 + site intel v2
+- [x] Services (cache, geocodage, PLU, foncier)
+- [x] Client API frontend avec fallback
+- [x] Tests API 37/37 PASS
+
+### Sprint 3 (TERMINE) ✅
+- [x] Routers programming + design
+- [x] Frontend integration programming/design avec fallback
+- [x] Solvers TypeScript locaux (room, footprint, parametric, variant)
+- [x] Tests API 67/67 PASS
 
 ### Sprint 4 (A VENIR) — Livraison Finale
-- [ ] Generation PDF cote serveur (CERFA, notices, rapports)
-- [ ] Integration cartographique IGN (LIDAR, cadastre)
-- [ ] Workflow multi-utilisateurs
-- [ ] Cache Redis reel
+- [ ] Generation PDF cote serveur (CERFA, notices, rapports) — WeasyPrint/Puppeteer
+- [ ] Integration cartographique IGN (LIDAR, cadastre, geoportail)
+- [ ] Base de donnees PostgreSQL (projets, utilisateurs, evaluations)
+- [ ] Auth JWT (remplacer le mock actuel)
+- [ ] Audit trail complet (historique evaluations, versions)
+- [ ] Cache Redis reel (remplacer le dict en memoire)
+- [ ] Workflow multi-utilisateurs (architecte, client, mairie)
 
 ### Sprint 5 (A VENIR) — Polish
 - [ ] Internationalisation FR/EN/ES
-- [ ] Optimisation mobile (code-splitting Three.js)
-- [ ] Monitoring (Prometheus/Grafana)
-- [ ] Tests E2E Playwright complets
-
-### Sprint 3 — Moteur Reglementaire Avance
-- [ ] Solver parametric complet (6 algorithmes)
-- [ ] Generation automatique des variants architecturaux
-- [ ] Moteur de conformite avec 6000+ regles
-- [ ] Audit trail complet
-
-### Sprint 4 — Livraison Finale
-- [ ] Generation PDF cote serveur (CERFA, notices, rapports)
-- [ ] Integration cartographique IGN (LIDAR, cadastre)
-- [ ] Workflow multi-utilisateurs
-
-### Sprint 5 — Polish
-- [ ] Internationalisation FR/EN/ES
-- [ ] Optimisation mobile (code-splitting Three.js)
-- [ ] Monitoring (Prometheus/Grafana)
+- [ ] Optimisation mobile (code-splitting Three.js, lazy loading)
+- [ ] Monitoring Prometheus/Grafana
+- [ ] Tests E2E Playwright complets (> 20 specs)
+- [ ] CI/CD GitHub Actions (build, test, deploy)
 
 ---
 
@@ -102,41 +96,43 @@ src/
   components/      — Composants partages (Navbar, Footer, Layout, Sidebar)
   components/ui/   — 40+ composants shadcn/ui
   components/viewers/ — Plan2DViewer, VariantComparison, Viewer3D (Three.js)
-  lib/             — Utils, auth, solver, api
-  lib/solver/      — Moteur de conception (6 algorithmes)
+  lib/             — Utils, auth, solver, api, api-client
+  lib/solver/      — Moteur de conception (6 algorithmes, 1534l)
   mocks/           — Donnees mock (complianceData, projectData)
   hooks/           — Hooks custom (use-mobile)
   types/           — Types TypeScript
 ```
 
-### Backend (a construire)
+### Backend
 ```
 backend/
   app/
     main.py              — Point d'entree FastAPI
-    dsl_integration.py   — Integration DSL (NOUVEAU S2)
-    services/            — Services metier (NOUVEAU S2)
+    dsl_integration.py   — Integration DSL
+    models/schemas.py    — Modeles Pydantic
+    routers/             — Endpoints API
+      compliance_v2.py   — Evaluate, report, rules
+      site_intel_v2.py   — Geocode, intel, PLU
+      programming.py     — Generate programme, get programme
+      design.py          — Generate variants, list, select
+    services/            — Services metier
       cache_service.py
       geocoding_service.py
       plu_service.py
       foncier_service.py
-      site_intel_service.py
-    routers/             — Endpoints API (NOUVEAU S2)
-      compliance_v2.py
-      site_intel_v2.py
-    models/              — Modeles Pydantic
-  edifia-dsl/            — Regles YAML (deja existe)
-    rules/urbanisme/
-    rules/dtu/
-    rules/re2020/
-    rules/pmr/
-    rules/incendie/
+    tests/               — 67 tests pytest
 ```
 
-### DSL (deja existe)
-- 70+ regles YAML avec format : `rule_code`, `name`, `category`, `applies_when`, `check`, `severity`
-- Parseur Python dans `edifia-dsl/`
-- Tests unitaires passes
+### DSL
+```
+edifia-dsl/
+  models/              — Rule, ProjectContext, etc.
+  parser/              — Parseur YAML
+  engine/              — Operators, resolver, registry, compliance engine
+  reporters/           — JSON + HTML
+  rules/               — 50+ regles YAML
+  tests/               — 86 tests pytest
+```
 
 ---
 
@@ -152,26 +148,27 @@ npm install
 npm run build          # Build production (vers dist/)
 npm run dev            # Dev server
 
-# Backend (a creer dans backend/)
+# Backend
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
-# Tests e2e
+# Tests
+python -m pytest backend/tests/ -v
 npx playwright test
 
-# Docker (optionnel)
+# Docker
 docker-compose -f edifia-infra/docker/docker-compose.yml up
 ```
 
 ---
 
-## 6. API Spec (v2 — Sprint 2)
+## 6. API Spec (v2)
 
 ### Conformite
 - `POST /api/v2/compliance/evaluate/{project_id}` — Lance evaluation
 - `GET /api/v2/compliance/report/{project_id}` — Rapport derniere evaluation
-- `GET /api/v2/compliance/rules` — Liste regles (filtres: category, zone, page)
+- `GET /api/v2/compliance/rules` — Liste regles (filtres: category, page)
 - `GET /api/v2/compliance/rules/{rule_code}` — Detail regle
 
 ### Site Intelligence
@@ -179,16 +176,26 @@ docker-compose -f edifia-infra/docker/docker-compose.yml up
 - `GET /api/v2/site/intel/{project_id}` — Donnees terrain aggregees
 - `GET /api/v2/site/plu/{commune_code}` — Regles PLU commune
 
+### Programmation
+- `POST /api/v2/programming/generate/{project_id}` — Genere programme architectural
+- `GET /api/v2/programming/{project_id}` — Recupere programme
+
+### Conception
+- `POST /api/v2/design/generate/{project_id}` — Genere variantes (2-4)
+- `GET /api/v2/design/{project_id}` — Liste variantes
+- `POST /api/v2/design/select/{project_id}/{variant_id}` — Selectionne variante
+
 ---
 
 ## 7. Points d'Attention
 
-1. **Frontend utilise HashRouter** (`react-router` avec `<HashRouter>`) — necessaire pour deploiement statique
+1. **HashRouter** dans `main.tsx` — necessaire pour deploiement statique
 2. **Three.js est lourd** (1.56MB) — code-splitting recommande pour V2
-3. **Donnees mock a remplacer** — Tout le frontend utilise des donnees statiques dans `src/mocks/`
+3. **API fallback** — Toutes les fonctions API ont un fallback vers les solvers locaux
 4. **Auth est mock** — Connexion automatique sans veritable backend
 5. **CERFA est HTML print-ready** — Pas de PDF genere cote serveur (Sprint 4)
-6. **Pas de base de donnees** — Tout est en memoire/mock (Sprint 2+ pourra utiliser SQLite)
+6. **Cache est en memoire** — Placeholder pour Redis (Sprint 4)
+7. **Pas de base de donnees** — Tout est en memoire/mock (Sprint 4)
 
 ---
 
@@ -199,7 +206,7 @@ docker-compose -f edifia-infra/docker/docker-compose.yml up
 - **Spec Sprint 3** : `docs/SPEC_SPRINT3.md`
 - **Equipe IA** : `docs/EDIFIA_EQUIPE_IA_SYNTHESIS.md`
 - **Architecture** : `docs/architecture_cible.md`
-- **Test Report S1** : `docs/TEST_REPORT.md`
+- **Test Report** : `docs/TEST_REPORT.md`
 
 ---
 
@@ -207,8 +214,8 @@ docker-compose -f edifia-infra/docker/docker-compose.yml up
 
 - [ ] Cloner le repo
 - [ ] Lire ce document (AGENT_REPRISE.md)
-- [ ] Lire la spec du sprint en cours (docs/SPEC_SPRINT*.md)
-- [ ] Verifier npm install + npm run build passe
-- [ ] Verifier la structure des dossiers
-- [ ] Ne JAMAIS modifier directement dans /mnt/agents/output/app/ sans commit
+- [ ] Lire la spec du sprint en cours
+- [ ] Verifier `npm install + npm run build` passe
+- [ ] Verifier `cd backend && python -m pytest` passe
+- [ ] Ne JAMAIS modifier sans commit
 - [ ] Toujours push sur GitHub apres chaque session
