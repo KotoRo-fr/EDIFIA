@@ -31,7 +31,7 @@ app.include_router(compliance_router)
 app.include_router(site_intel_router)
 app.include_router(programming_router)
 app.include_router(design_router)
-app.include_router(deliverables_router)
+app.include_router(deliverables_router, prefix="/api/v2")
 
 
 @app.get("/health", tags=["Health"])

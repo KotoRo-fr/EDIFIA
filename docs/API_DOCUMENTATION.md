@@ -602,6 +602,42 @@ curl "http://localhost:8000/api/v2/site/intel/mon-projet-123"
 curl "http://localhost:8000/api/v2/site/plu/93073"
 ```
 
+### cURL - Liste des livrables
+
+```bash
+curl "http://localhost:8000/api/v2/deliverables/mon-projet-123"
+```
+
+### cURL - Generer tous les documents
+
+```bash
+curl -X POST "http://localhost:8000/api/v2/deliverables/generate/mon-projet-123"
+```
+
+### cURL - Recuperer le CERFA
+
+```bash
+curl "http://localhost:8000/api/v2/deliverables/mon-projet-123/cerfa"
+```
+
+### cURL - Recuperer la notice
+
+```bash
+curl "http://localhost:8000/api/v2/deliverables/mon-projet-123/notice"
+```
+
+### cURL - Recuperer le rapport
+
+```bash
+curl "http://localhost:8000/api/v2/deliverables/mon-projet-123/rapport"
+```
+
+### cURL - Recuperer les plans
+
+```bash
+curl "http://localhost:8000/api/v2/deliverables/mon-projet-123/plans"
+```
+
 ### Python - Exemple complet
 
 ```python
@@ -640,7 +676,7 @@ const geocode = async (address) => {
 
 ---
 
-## 9. Swagger UI
+## 10. Swagger UI
 
 La documentation interactive est disponible a l'adresse :
 
@@ -655,9 +691,11 @@ http://localhost:8000/docs
 ### v2.0.0 (Mai 2026)
 - Ajout endpoints conformite v2 (evaluate, report, rules)
 - Ajout endpoints Site Intelligence (geocode, intel, plu)
+- Ajout endpoints Livrables (liste, generation, cerfa, notice, rapport, plans)
 - 50 regles de conformite actives
 - 10 communes pilotes avec PLU
 - Mock geocodage BAN
+- 5 types de documents livrables generes automatiquement
 
 ---
 
