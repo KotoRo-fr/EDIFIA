@@ -11,10 +11,11 @@
 3. [Authentification](#3-authentification)
 4. [Endpoints Conformite](#4-endpoints-conformite)
 5. [Endpoints Site Intelligence](#5-endpoints-site-intelligence)
-6. [Modeles de Donnees](#6-modeles-de-donnees)
-7. [Codes d'Erreur](#7-codes-derreur)
-8. [Exemples d'Appels](#8-exemples-dappels)
-9. [Swagger UI](#9-swagger-ui)
+6. [Endpoints Livrables](#6-endpoints-livrables)
+7. [Modeles de Donnees](#7-modeles-de-donnees)
+8. [Codes d'Erreur](#8-codes-derreur)
+9. [Exemples d'Appels](#9-exemples-dappels)
+10. [Swagger UI](#10-swagger-ui)
 
 ---
 
@@ -305,7 +306,194 @@ Retourne les regles PLU pour une commune.
 
 ---
 
-## 6. Modeles de Donnees
+## 6. Endpoints Livrables
+
+### 6.1 GET `/api/v2/deliverables/{project_id}`
+
+Liste les documents disponibles et leur statut pour un projet.
+
+**Parametres de chemin** :
+| Nom | Type | Description |
+|-----|------|-------------|
+| project_id | string | Identifiant du projet |
+
+**Reponse 200** :
+```json
+{
+  "project_id": "test-proj",
+  "documents": [
+    {"type": "cerfa", "name": "Formulaire CERFA 13406*05", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "notice", "name": "Notice de calcul", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "rapport", "name": "Rapport de conformite", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "plans", "name": "Plans architecturaux", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "pack", "name": "Pack de soumission complet", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"}
+  ],
+  "total_count": 5,
+  "generated_count": 5
+}
+```
+
+---
+
+### 6.2 POST `/api/v2/deliverables/generate/{project_id}`
+
+Genere tous les documents pour un projet.
+
+**Parametres de chemin** :
+| Nom | Type | Description |
+|-----|------|-------------|
+| project_id | string | Identifiant du projet |
+
+**Reponse 200** :
+```json
+{
+  "project_id": "test-proj",
+  "status": "generating",
+  "documents": [
+    {"type": "cerfa", "name": "Formulaire CERFA 13406*05", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "notice", "name": "Notice de calcul", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "rapport", "name": "Rapport de conformite", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "plans", "name": "Plans architecturaux", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"},
+    {"type": "pack", "name": "Pack de soumission complet", "status": "generated", "generated_at": "2026-05-12T10:30:00Z"}
+  ]
+}
+```
+
+---
+
+### 6.3 GET `/api/v2/deliverables/{project_id}/cerfa`
+
+Retourne les donnees du formulaire CERFA pre-rempli.
+
+**Reponse 200** :
+```json
+{
+  "form": "CERFA 13406*05",
+  "identity": {
+    "maitre_oeuvre": "EDIFIA SAS",
+    "numero_siret": "12345678900012",
+    "architecte": "Jean Dupont",
+    " numero_ordre": "12345"
+  },
+  "parcelle": {
+    "adresse": "12 rue de la Paix, Tremblay-en-France",
+    "section": "AB",
+    "numero": "0123",
+    "surface": 750.0
+  },
+  "projet": {
+    "nature": "Construction neuve",
+    "usage": "Logement collectif",
+    "surface_plancher": 375.0,
+    "hauteur": 12.0,
+    "nb_logements": 8
+  },
+  "description_travaux": {
+    "corps_etat": "Gros oeuvre, charpente, couverture",
+    "prestations": "Electricite, plomberie, menuiserie",
+    "duree_estimee": "18 mois"
+  }
+}
+```
+
+---
+
+### 6.4 GET `/api/v2/deliverables/{project_id}/notice`
+
+Retourne la notice de calcul (structure + thermique + PMR + incendie).
+
+**Reponse 200** :
+```json
+{
+  "title": "Notice de calcul — Structure et Thermique",
+  "structure": {
+    "portee_max": 8.5,
+    "section_poteaux": "30x30 cm",
+    "charges": {"permanentes": "350 kg/m2", "exploitation": "250 kg/m2"},
+    "conclusion": "Structure conforme aux eurocodes 0, 1 et 2"
+  },
+  "thermique": {
+    "rt_applicable": "RE2020",
+    "bbio": 1.05,
+    "cep": 165.0,
+    "dpe": "B",
+    "conclusion": "Performances thermiques conformes RE2020"
+  },
+  "pmr": {
+    "cheminements": "Largeur minimale 1.40m respectee",
+    "conclusion": "Accessibilite PMR conforme"
+  },
+  "incendie": {
+    "desenfumage": "Baies ouvrantes 1.5% de la surface",
+    "conclusion": "Securite incendie conforme ERP type J"
+  }
+}
+```
+
+---
+
+### 6.5 GET `/api/v2/deliverables/{project_id}/rapport`
+
+Retourne le rapport de conformite reglementaire.
+
+**Reponse 200** :
+```json
+{
+  "title": "Rapport de conformite reglementaire",
+  "executive_summary": {
+    "total_rules": 50,
+    "passed": 38,
+    "failed": 8,
+    "warnings": 2,
+    "not_applicable": 2,
+    "compliance_rate": 76.0
+  },
+  "results_by_category": [
+    {"category": "Urbanisme", "total": 15, "passed": 12, "failed": 2, "warnings": 1},
+    {"category": "DTU", "total": 10, "passed": 8, "failed": 1, "warnings": 1},
+    {"category": "RE2020", "total": 10, "passed": 7, "failed": 2, "warnings": 1},
+    {"category": "PMR", "total": 8, "passed": 6, "failed": 2, "warnings": 0},
+    {"category": "Incendie", "total": 7, "passed": 5, "failed": 1, "warnings": 0}
+  ],
+  "conclusion": "Le projet presente un taux de conformite global de 76%..."
+}
+```
+
+---
+
+### 6.6 GET `/api/v2/deliverables/{project_id}/plans`
+
+Retourne les plans architecturaux.
+
+**Reponse 200** :
+```json
+{
+  "title": "Plans architecturaux",
+  "plans": [
+    {"type": "Situation", "echelle": "1:500", "description": "Plan de situation cadastrale"},
+    {"type": "Masse", "echelle": "1:200", "description": "Plan de masse avec implantation"},
+    {"type": "RDC", "echelle": "1:100", "description": "Plan du rez-de-chaussee"},
+    {"type": "Etage", "echelle": "1:100", "description": "Plan d'etage type"},
+    {"type": "Coupe", "echelle": "1:100", "description": "Coupe transversale AA'"}
+  ],
+  "legend": {
+    "murs_porteurs": "Epaisseur 30cm - hachures rouges",
+    "cloisons": "Epaisseur 7cm - pointilles",
+    "ouvertures": "Fenetres et portes - bleu",
+    "escaliers": "Fleche de direction",
+    "cotes": "Toutes cotes en metres"
+  },
+  "dimensions": {
+    "format": "A3 paysage",
+    "unite": "metres",
+    "precision": "0.01m"
+  }
+}
+```
+
+---
+
+## 7. Modeles de Donnees
 
 ### ComplianceSummary
 | Champ | Type | Description |
@@ -351,7 +539,18 @@ Retourne les regles PLU pour une commune.
 
 ---
 
-## 7. Codes d'Erreur
+## 7. Modele DocumentInfo
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| type | string | Type de document (cerfa, notice, rapport, plans, pack) |
+| name | string | Nom affiche du document |
+| status | string | generated / pending / error |
+| generated_at | string | Date ISO 8601 de generation |
+
+---
+
+## 8. Codes d'Erreur
 
 | Code HTTP | Signification | Cause |
 |-----------|---------------|-------|

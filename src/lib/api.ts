@@ -216,3 +216,83 @@ export async function selectVariant(projectId: string, variantId: string): Promi
     undefined
   );
 }
+
+// ─── Local deliverables helpers (fallback when backend is offline) ─────────
+
+function getLocalDeliverables(projectId: string) {
+  return {
+    project_id: projectId,
+    status: "generated" as string,
+    documents: [
+      { id: "cerfa", title: "CERFA Permis de construire", icon: "FileText", status: "generated", description: "Formulaire CERFA 13406*05 rempli automatiquement" },
+      { id: "notice", title: "Notice de calcul", icon: "Calculator", status: "generated", description: "Calculs structures, thermiques et reglementaires" },
+      { id: "rapport", title: "Rapport de conformite", icon: "ShieldCheck", status: "generated", description: "Synthese des 70 verifications reglementaires" },
+      { id: "plans", title: "Plans architecturaux", icon: "Map", status: "generated", description: "Plans de situation, masse et niveau RDC" },
+      { id: "pack", title: "Pack complet de depot", icon: "Package", status: "pending", description: "Assemblage de tous les documents pour la mairie" },
+    ],
+  };
+}
+
+function getLocalCerfa(projectId: string) {
+  const project = mockProjects.find((p) => p.id === projectId) || mockProjects[0];
+  return {
+    project,
+    profile: { first_name: "Marie", last_name: "Dubois" },
+  };
+}
+
+function getLocalNotice(projectId: string) {
+  const project = mockProjects.find((p) => p.id === projectId) || mockProjects[0];
+  return {
+    project,
+    complianceResult: { ...mockEvaluationResult, project_id: projectId },
+  };
+}
+
+function getLocalRapport(projectId: string) {
+  const project = mockProjects.find((p) => p.id === projectId) || mockProjects[0];
+  return {
+    project,
+    complianceResult: { ...mockEvaluationResult, project_id: projectId },
+  };
+}
+
+function getLocalPlans(projectId: string) {
+  const project = mockProjects.find((p) => p.id === projectId) || mockProjects[0];
+  return {
+    project,
+    variant: undefined as any,
+  };
+}
+
+// ─── Deliverables API ────────────────────────────────────
+
+export async function listDeliverables(projectId: string) {
+  return withFallback(
+    () => api.listDeliverables(projectId),
+    getLocalDeliverables(projectId)
+  );
+}
+
+export async function generateAllDeliverables(projectId: string) {
+  return withFallback(
+    () => api.generateAllDeliverables(projectId),
+    { project_id: projectId, status: "generated", documents: getLocalDeliverables(projectId).documents }
+  );
+}
+
+export async function getCerfaData(projectId: string) {
+  return withFallback(() => api.getCerfa(projectId), getLocalCerfa(projectId));
+}
+
+export async function getNoticeData(projectId: string) {
+  return withFallback(() => api.getNotice(projectId), getLocalNotice(projectId));
+}
+
+export async function getRapportData(projectId: string) {
+  return withFallback(() => api.getRapport(projectId), getLocalRapport(projectId));
+}
+
+export async function getPlansData(projectId: string) {
+  return withFallback(() => api.getPlans(projectId), getLocalPlans(projectId));
+}

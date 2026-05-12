@@ -71,6 +71,32 @@ class ApiClient {
   async selectVariant(projectId: string, variantId: string) {
     return this.request(`/design/select/${projectId}/${variantId}`, { method: "POST" });
   }
+
+  // ─── Deliverables ────────────────────────────────────────
+
+  async listDeliverables(projectId: string) {
+    return this.request(`/deliverables/${projectId}`);
+  }
+
+  async generateAllDeliverables(projectId: string) {
+    return this.request(`/deliverables/generate/${projectId}`, { method: "POST" });
+  }
+
+  async getCerfa(projectId: string) {
+    return this.request(`/deliverables/${projectId}/cerfa`);
+  }
+
+  async getNotice(projectId: string) {
+    return this.request(`/deliverables/${projectId}/notice`);
+  }
+
+  async getRapport(projectId: string) {
+    return this.request(`/deliverables/${projectId}/rapport`);
+  }
+
+  async getPlans(projectId: string) {
+    return this.request(`/deliverables/${projectId}/plans`);
+  }
 }
 
 export const api = new ApiClient();
