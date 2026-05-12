@@ -11,7 +11,7 @@ class DeliverableItem(BaseModel):
     id: str
     name: str
     type: str
-    status: str  # "generated", "pending", "error"
+    status: str
     generated_at: Optional[str] = None
     url: Optional[str] = None
 
@@ -19,16 +19,17 @@ class DeliverableItem(BaseModel):
 @router.get("/deliverables/{project_id}")
 def list_deliverables(project_id: str):
     """Liste les documents disponibles pour un projet."""
+    now = datetime.now().isoformat()
     return {
         "project_id": project_id,
         "documents": [
-            {"id": "cerfa", "name": "CERFA 13406*05", "type": "cerfa", "status": "generated", "generated_at": datetime.now().isoformat(), "url": f"/api/v2/deliverables/{project_id}/cerfa"},
-            {"id": "notice", "name": "Notice de calcul", "type": "notice", "status": "generated", "generated_at": datetime.now().isoformat(), "url": f"/api/v2/deliverables/{project_id}/notice"},
-            {"id": "rapport", "name": "Rapport de conformite", "type": "rapport", "status": "generated", "generated_at": datetime.now().isoformat(), "url": f"/api/v2/deliverables/{project_id}/rapport"},
-            {"id": "plans", "name": "Plans architecturaux", "type": "plans", "status": "pending"},
-            {"id": "pack", "name": "Pack de depot", "type": "pack", "status": "pending"},
+            {"type": "cerfa", "name": "CERFA 13406*05", "status": "generated", "generated_at": now, "url": f"/api/v2/deliverables/{project_id}/cerfa"},
+            {"type": "notice", "name": "Notice de calcul", "status": "generated", "generated_at": now, "url": f"/api/v2/deliverables/{project_id}/notice"},
+            {"type": "rapport", "name": "Rapport de conformite", "status": "generated", "generated_at": now, "url": f"/api/v2/deliverables/{project_id}/rapport"},
+            {"type": "plans", "name": "Plans architecturaux", "status": "generated", "generated_at": now, "url": f"/api/v2/deliverables/{project_id}/plans"},
+            {"type": "pack", "name": "Pack de soumission", "status": "generated", "generated_at": now, "url": f"/api/v2/deliverables/{project_id}/pack"},
         ],
-        "generated_count": 3,
+        "generated_count": 5,
         "total_count": 5,
     }
 
@@ -36,17 +37,17 @@ def list_deliverables(project_id: str):
 @router.post("/deliverables/generate/{project_id}")
 def generate_all(project_id: str):
     """Genere tous les documents pour un projet."""
+    now = datetime.now().isoformat()
     return {
         "project_id": project_id,
         "status": "generating",
         "documents": [
-            {"id": "cerfa", "name": "CERFA 13406*05", "status": "generated"},
-            {"id": "notice", "name": "Notice de calcul", "status": "generated"},
-            {"id": "rapport", "name": "Rapport de conformite", "status": "generated"},
-            {"id": "plans", "name": "Plans architecturaux", "status": "generated"},
-            {"id": "pack", "name": "Pack de depot", "status": "generated"},
+            {"type": "cerfa", "name": "CERFA 13406*05", "status": "generated", "generated_at": now},
+            {"type": "notice", "name": "Notice de calcul", "status": "generated", "generated_at": now},
+            {"type": "rapport", "name": "Rapport de conformite", "status": "generated", "generated_at": now},
+            {"type": "plans", "name": "Plans architecturaux", "status": "generated", "generated_at": now},
+            {"type": "pack", "name": "Pack de soumission", "status": "generated", "generated_at": now},
         ],
-        "generated_at": datetime.now().isoformat(),
     }
 
 
@@ -141,7 +142,7 @@ def get_rapport(project_id: str):
             "passed": 38,
             "failed": 8,
             "warnings": 4,
-            "compliance_rate": 76,
+            "compliance_rate": 76.0,
             "status": "PARTIAL",
         },
         "results_by_category": [
@@ -167,11 +168,11 @@ def get_plans(project_id: str):
         "project_id": project_id,
         "title": "Plans Architecturaux",
         "plans": [
-            {"name": "Plan de situation", "scale": "1:500", "type": "situation"},
-            {"name": "Plan de masse", "scale": "1:200", "type": "masse"},
-            {"name": "Plan RDC", "scale": "1:100", "type": "rdc"},
-            {"name": "Coupe AA'", "scale": "1:100", "type": "coupe"},
-            {"name": "Coupe BB'", "scale": "1:100", "type": "coupe"},
+            {"name": "Plan de situation", "scale": "1:500", "type": "Situation"},
+            {"name": "Plan de masse", "scale": "1:200", "type": "Masse"},
+            {"name": "Plan RDC", "scale": "1:100", "type": "RDC"},
+            {"name": "Plan Etage", "scale": "1:100", "type": "Etage"},
+            {"name": "Coupe transversale", "scale": "1:100", "type": "Coupe"},
         ],
         "legend": [
             {"symbol": "—", "meaning": "Mur porteur"},
@@ -180,9 +181,8 @@ def get_plans(project_id: str):
             {"symbol": "///", "meaning": "Circulation"},
         ],
         "dimensions": {
-            "longueur": 12.5,
-            "largeur": 8.6,
-            "hauteur": 3.5,
-            "surface_au_sol": 108.0,
+            "format": "A3 paysage",
+            "unite": "metres",
+            "precision": "0.01m",
         },
     }
