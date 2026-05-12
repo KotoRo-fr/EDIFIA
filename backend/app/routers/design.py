@@ -1,6 +1,6 @@
 """Router Design v2 - API de conception generative EDIFIA."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
@@ -16,117 +16,118 @@ class GenerateVariantsRequest(BaseModel):
     strategy_count: Optional[int] = 4
 
 
-class VariantScores(BaseModel):
-    surface: float
-    sunExposure: float
-    costEfficiency: float
-    aesthetics: float
-    overall: float
-
-
-class Variant(BaseModel):
-    id: str
-    name: str
-    strategy: str
-    scores: VariantScores
-    conformityScore: float
-    description: str
-
-
-class GenerateVariantsResponse(BaseModel):
-    project_id: str
-    total: int
-    variants: List[Variant]
-
-
 # ---------------------------------------------------------------------------
 # Strategies predefinies
 # ---------------------------------------------------------------------------
 
 _STRATEGIES = [
-    {"id": "variant-A", "name": "Variante A - Max Surface", "strategy": "max_surface", "description": "Maximise la surface habitable"},
-    {"id": "variant-B", "name": "Variante B - Max Ensoleillement", "strategy": "max_sun", "description": "Maximise l'exposition solaire"},
-    {"id": "variant-C", "name": "Variante C - Min Cout", "strategy": "min_cost", "description": "Minimise le cout de construction"},
-    {"id": "variant-D", "name": "Variante D - Esthetique", "strategy": "aesthetics", "description": "Privilegie l'esthetique architecturale"},
+    {
+        "strategy": "max_surface",
+        "name": "Maximisation surface",
+        "description": "Maximise la surface habitable au detriment des espaces communs.",
+        "label": "Surface++",
+    },
+    {
+        "strategy": "max_sun",
+        "name": "Maximisation ensoleillement",
+        "description": "Oriente toutes les pieces vers le sud pour maximiser l'ensoleillement.",
+        "label": "Soleil++",
+    },
+    {
+        "strategy": "min_cost",
+        "name": "Minimisation cout",
+        "description": "Optimise le cout de construction en reduisant les surfaces.",
+        "label": "Cout--",
+    },
+    {
+        "strategy": "aesthetics",
+        "name": "Maximisation esthetique",
+        "description": "Privilegie l'esthetique et l'harmonie des espaces.",
+        "label": "Design++",
+    },
 ]
 
 
-def _build_variant(strategy_idx: int, project_id: str) -> Variant:
+def _build_floor_plan() -> Dict[str, Any]:
+    """Construit un floor plan de demonstration."""
+    return {
+        "rooms": [
+            {"id": "r1", "name": "Salon", "type": "salon", "surface": 25.0, "x": 0, "y": 0, "width": 5.0, "height": 5.0},
+            {"id": "r2", "name": "Cuisine", "type": "cuisine", "surface": 10.0, "x": 5, "y": 0, "width": 3.33, "height": 3.0},
+            {"id": "r3", "name": "Chambre", "type": "chambre", "surface": 12.0, "x": 0, "y": 5, "width": 3.46, "height": 3.46},
+        ],
+        "walls": [
+            {"x1": 0, "y1": 0, "x2": 8.33, "y2": 0},
+            {"x1": 8.33, "y1": 0, "x2": 8.33, "y2": 5},
+            {"x1": 8.33, "y1": 5, "x2": 0, "y2": 5},
+            {"x1": 0, "y1": 5, "x2": 0, "y2": 0},
+        ],
+        "doors": [
+            {"x1": 5, "y1": 0, "x2": 6, "y2": 0},
+        ],
+    }
+
+
+def _build_variant(strategy_idx: int, project_id: str) -> Dict[str, Any]:
     """Construit une variante selon la strategie."""
     strat = _STRATEGIES[strategy_idx % len(_STRATEGIES)]
+    variant_id = f"{project_id}-v{strategy_idx + 1}"
 
-    # Scores selon la strategie
     if strat["strategy"] == "max_surface":
-        scores = VariantScores(surface=95.0, sunExposure=70.0, costEfficiency=75.0, aesthetics=60.0, overall=80.0)
+        scores = {"surface": 95, "sunExposure": 70, "costEfficiency": 60, "aesthetics": 65, "overall": 75}
     elif strat["strategy"] == "max_sun":
-        scores = VariantScores(surface=70.0, sunExposure=95.0, costEfficiency=65.0, aesthetics=75.0, overall=78.0)
+        scores = {"surface": 65, "sunExposure": 95, "costEfficiency": 70, "aesthetics": 72, "overall": 78}
     elif strat["strategy"] == "min_cost":
-        scores = VariantScores(surface=65.0, sunExposure=60.0, costEfficiency=95.0, aesthetics=55.0, overall=72.0)
+        scores = {"surface": 60, "sunExposure": 65, "costEfficiency": 95, "aesthetics": 58, "overall": 72}
     elif strat["strategy"] == "aesthetics":
-        scores = VariantScores(surface=75.0, sunExposure=72.0, costEfficiency=60.0, aesthetics=95.0, overall=79.0)
+        scores = {"surface": 70, "sunExposure": 72, "costEfficiency": 55, "aesthetics": 95, "overall": 76}
     else:
-        scores = VariantScores(surface=75.0, sunExposure=75.0, costEfficiency=75.0, aesthetics=75.0, overall=75.0)
+        scores = {"surface": 75, "sunExposure": 75, "costEfficiency": 75, "aesthetics": 75, "overall": 75}
 
-    # Conformity score entre 0 et 100
-    import random
-    random.seed(hash(f"{project_id}-{strat['id']}") % 10000)
-    conformity = round(random.uniform(75.0, 98.0), 1)
+    # Conformity score entre 65 et 95
+    base = hash(f"{project_id}-{strategy_idx}") % 1000
+    conformity = 65 + (base % 31)
 
-    return Variant(
-        id=strat["id"],
-        name=strat["name"],
-        strategy=strat["strategy"],
-        scores=scores,
-        conformityScore=conformity,
-        description=strat["description"],
-    )
+    return {
+        "id": variant_id,
+        "name": strat["name"],
+        "strategy": strat["strategy"],
+        "description": strat["description"],
+        "label": strat["label"],
+        "scores": scores,
+        "conformityScore": conformity,
+        "is_selected": False,
+        "floor_plan": _build_floor_plan(),
+    }
 
 
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
 
-@router.post("/generate/{project_id}", response_model=GenerateVariantsResponse)
+@router.post("/generate/{project_id}")
 def generate_variants(project_id: str, body: GenerateVariantsRequest):
     """Genere des variantes de conception pour un projet."""
-    count = min(max(body.strategy_count or 4, 1), 8)
+    count = min(body.strategy_count or 4, 4)
 
     variants = []
     for i in range(count):
-        variant = _build_variant(i, project_id)
-        # Si plus de 4 variantes, generer des IDs supplementaires
-        if i >= 4:
-            variant.id = f"variant-{chr(ord('A') + i)}"
-            variant.name = f"Variante {chr(ord('A') + i)} - Personnalisee"
-            variant.strategy = _STRATEGIES[i % 4]["strategy"]
-            variant.description = f"Variante personnalisee {i + 1}"
-        variants.append(variant)
+        variants.append(_build_variant(i, project_id))
 
-    return GenerateVariantsResponse(
-        project_id=project_id,
-        total=count,
-        variants=variants,
-    )
+    return {
+        "project_id": project_id,
+        "total": count,
+        "variants": variants,
+    }
 
 
 @router.get("/{project_id}")
 def list_variants(project_id: str):
     """Liste les variantes de conception pour un projet."""
-    variants = []
-    for i in range(4):
-        variant = _build_variant(i, project_id)
-        variants.append({
-            "id": variant.id,
-            "name": variant.name,
-            "strategy": variant.strategy,
-            "scores": variant.scores.model_dump(),
-            "conformityScore": variant.conformityScore,
-        })
-
     return {
         "project_id": project_id,
-        "total": len(variants),
-        "variants": variants,
+        "total": 0,
+        "variants": [],
     }
 
 
@@ -137,5 +138,4 @@ def select_variant(project_id: str, variant_id: str):
         "project_id": project_id,
         "variant_id": variant_id,
         "selected": True,
-        "selected_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
