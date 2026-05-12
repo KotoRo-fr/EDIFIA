@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Shield, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { api } from '@/lib/api-client';
+import PageTransition from '@/components/animations/PageTransition';
 
 // Types
 interface SiteData {
@@ -84,6 +85,7 @@ export default function SiteIntelPage() {
   }, [loadSiteIntel]);
 
   return (
+    <PageTransition>
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}`)}>
@@ -147,5 +149,6 @@ export default function SiteIntelPage() {
         ))}
       </div>
     </div>
+    </PageTransition>
   );
 }

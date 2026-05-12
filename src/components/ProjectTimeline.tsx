@@ -15,11 +15,13 @@ const statusColors: Record<string, { bg: string; border: string; icon: string }>
 
 // Mapping timeline step → route
 const stepRoutes: Record<string, string> = {
-  brief: 'brief',
-  programming: 'programming',
-  design: 'design',
-  compliance: 'compliance',
-  deliverables: 'deliverables',
+  brief: 'projects',
+  terrain: 'site-intel',
+  programme: 'programming',
+  conception: 'design',
+  conformite: 'compliance',
+  livrables: 'deliverables',
+  depot: '',
   submitted: '',
 };
 

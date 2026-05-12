@@ -9,6 +9,7 @@ import ComplianceGauge from '@/components/ComplianceGauge';
 import { mockEvaluationResult } from '@/mocks/complianceData';
 import { api } from '@/lib/api-client';
 import { toast } from 'sonner';
+import PageTransition from '@/components/animations/PageTransition';
 
 // Types simples
 interface CheckResult {
@@ -154,6 +155,7 @@ export default function CompliancePage() {
   const blocking = results.filter((r: CheckResult) => r.status === 'fail');
 
   return (
+    <PageTransition>
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}`)}>
@@ -262,5 +264,6 @@ export default function CompliancePage() {
         </TabsContent>
       </Tabs>
     </div>
+    </PageTransition>
   );
 }

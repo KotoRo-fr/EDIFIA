@@ -33,6 +33,8 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table';
+import { toast } from 'sonner';
+import PageTransition from '@/components/animations/PageTransition';
 
 const statusLabels: Record<string, string> = {
   draft: 'Brouillon', site_intel: 'Analyse terrain', programming: 'Programmation',
@@ -68,10 +70,23 @@ export default function DesignPage() {
   const handleGenerate = useCallback(async () => {
     if (!projectId) return;
 
-    // Appel API avec fallback automatique vers solver local
-    const result = await generateVariantsApi(projectId);
-    setVariants(result);
-    setVariantsGenerated(true);
+    toast.info('Generation en cours', {
+      description: 'Analyse des variantes architecturales...',
+    });
+
+    try {
+      // Appel API avec fallback automatique vers solver local
+      const result = await generateVariantsApi(projectId);
+      setVariants(result);
+      setVariantsGenerated(true);
+      toast.success('Variantes generees', {
+        description: `${result.length} variantes architecturales generees.`,
+      });
+    } catch {
+      toast.error('Erreur', {
+        description: 'Impossible de generer les variantes.',
+      });
+    }
   }, [projectId]);
 
   const handleRelaunch = useCallback(() => {
@@ -93,8 +108,12 @@ export default function DesignPage() {
   const handleValidate = useCallback(() => {
     if (selectedVariantId) {
       setValidatedVariantId(selectedVariantId);
+      const variant = variants.find(v => v.id === selectedVariantId);
+      toast.success('Variante validee', {
+        description: `La variante "${variant?.name || selectedVariantId}" a ete retenue.`,
+      });
     }
-  }, [selectedVariantId]);
+  }, [selectedVariantId, variants]);
 
   if (!project) {
     return (
@@ -109,6 +128,7 @@ export default function DesignPage() {
   }
 
   return (
+    <PageTransition>
     <div className="p-6 lg:p-8 max-w-7xl space-y-6">
       {/* Header */}
       <div>
@@ -269,7 +289,7 @@ export default function DesignPage() {
                 {/* Liste des pièces */}
                 <div>
                   <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pièces</h4>
-                  <div className="max-h-48 overflow-y-auto border rounded-lg">
+                  <div className="max-h-48 overflow-y-auto overflow-x-auto border rounded-lg">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -351,6 +371,7 @@ export default function DesignPage() {
         </Card>
       )}
     </div>
+    </PageTransition>
   );
 }
 

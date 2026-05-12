@@ -10,6 +10,7 @@ import RapportConformiteViewer from '@/components/deliverables/RapportConformite
 import PlansViewer from '@/components/deliverables/PlansViewer';
 import { listDeliverables, generateAllDeliverables, getCerfaData, getNoticeData, getRapportData, getPlansData } from '@/lib/api';
 import { toast } from 'sonner';
+import PageTransition from '@/components/animations/PageTransition';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   FileText,
@@ -114,6 +115,7 @@ export default function DeliverablesPage() {
   const project = cerfaData?.project || noticeData?.project || rapportData?.project || plansData?.project;
 
   return (
+    <PageTransition>
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
       <Button variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}`)} className="mb-4">
         <ArrowLeft size={16} className="mr-1" /> Retour
@@ -181,5 +183,6 @@ export default function DeliverablesPage() {
         </CardContent>
       </Card>
     </div>
+    </PageTransition>
   );
 }

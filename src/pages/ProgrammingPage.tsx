@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { mockProjects } from '@/mocks/data';
 import { solveRoomProgram, generateFootprint, estimateBudget, analyzeSunExposure } from '@/lib/solver';
+import { toast } from 'sonner';
+import PageTransition from '@/components/animations/PageTransition';
 
 // Lazy load section components — CRUCIAL for performance
 const ProgPiecesSection = lazy(() => import('@/components/programming/ProgPiecesSection'));
@@ -38,6 +40,9 @@ export default function ProgrammingPage() {
   const handleGenerate = () => {
     if (!project?.brief) return;
     setIsLoading(true);
+    toast.info('Generation en cours', {
+      description: 'Creation du programme architectural...',
+    });
     setTimeout(() => {
       try {
         const brief = project.brief!;
@@ -53,8 +58,14 @@ export default function ProgrammingPage() {
         setSunAnalysis(sun);
         setBudget(bud);
         setProgramGenerated(true);
+        toast.success('Programme genere', {
+          description: `Programme architectural cree — ${prog.surfaces?.CHA ?? 0} m² CHA.`,
+        });
       } catch (e) {
         console.error('Generation error:', e);
+        toast.error('Erreur', {
+          description: 'Impossible de generer le programme.',
+        });
       } finally {
         setIsLoading(false);
       }
@@ -66,6 +77,7 @@ export default function ProgrammingPage() {
   }
 
   return (
+    <PageTransition>
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -163,5 +175,6 @@ export default function ProgrammingPage() {
           </Card>
         )}
     </div>
+    </PageTransition>
   );
 }
