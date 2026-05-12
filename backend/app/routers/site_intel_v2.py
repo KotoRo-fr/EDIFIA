@@ -203,7 +203,7 @@ def _build_risques_from_geo(geo_data: Dict[str, Any]) -> Risques:
 @router.get("/geocode", response_model=GeocodeResponse)
 def geocode_address(
     address: str = Query(..., description="Adresse a geocoder"),
-    real: bool = Query(True, description="Utiliser l'API BAN (true) ou mock (false)"),
+    real: bool = Query(False, description="Utiliser l'API BAN (true) ou mock (false)"),
 ):
     """Geocode une adresse et retourne les coordonnees + parcelle cadastre.
 
@@ -271,7 +271,7 @@ def geocode_ban_raw(
 def get_site_intel(
     project_id: str,
     address: Optional[str] = Query(None, description="Adresse pour donnees reelles (optionnel)"),
-    real: bool = Query(False, description="Activer les API reelles (defaut: mock)"),
+    real: bool = Query(False, description="Activer les API reelles (defaut: mock — passer a true pour donnees reelles)"),
 ):
     """Retourne les donnees terrain agregees pour un projet.
 
