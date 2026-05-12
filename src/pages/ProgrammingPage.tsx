@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import {
   ArrowLeft,
@@ -103,6 +103,13 @@ export default function ProgrammingPage() {
     const localProgram = solveRoomProgram(brief.rooms, project.project_type, style);
     setProgram(localProgram);
     setProgramGenerated(true);
+  }, [project]);
+
+  // Auto-generate program on page load
+  useEffect(() => {
+    if (project?.brief && !programGenerated && !isLoading) {
+      handleGenerateLocal();
+    }
   }, [project]);
 
   if (!project) {

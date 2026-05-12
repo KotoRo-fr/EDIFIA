@@ -136,7 +136,7 @@ export default function ProjectDetailPage() {
       <Card className="mb-6">
         <CardContent className="pt-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-4">Avancement du projet</h2>
-          <ProjectTimeline steps={mockTimelineSteps} currentStatus={project.status} />
+          <ProjectTimeline steps={mockTimelineSteps} currentStatus={project.status} projectId={project.id} />
         </CardContent>
       </Card>
 
